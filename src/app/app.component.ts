@@ -207,14 +207,18 @@ export class AppComponent implements OnInit {
 
   deleteAction(index: number) {
     this.tickets.splice(index, 1);
+    this.openAction(index);
   }
 
   rejectAction(index: number) {
     this.tickets[index].status = 'Rejected';
+    this.openAction(index);
+
   }
 
   acceptAction(index: number) {
     this.tickets[index].status = 'Accepted';
+    this.openAction(index);
   }
 
   constructor() {}
