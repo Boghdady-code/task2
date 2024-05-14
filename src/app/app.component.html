@@ -1,32 +1,44 @@
 <div class="container mt-5">
+  <div class="drag-container d-flex gap-3 mb-3">
+    <button class="btn btn-primary refersh">Refersh</button>
+    <div class="drag">Drag Here</div>
+  </div>
   <div class="table">
     <table class="table table-striped">
       <thead>
         <tr>
           <div class="properties d-flex gap-4 align-items-center">
             <th>
-              <input
-                type="checkbox"
-                class="form-check-input"
-              />
+              <input type="checkbox" class="form-check-input" />
             </th>
-            <i class="fa-solid fa-ellipsis-vertical"></i>
+            <i
+              class="fa-solid fa-ellipsis-vertical"
+              style="cursor: pointer"
+              (click)="openActionAll()"
+            ></i>
+            <div
+              class="actions-all gap-2 align-items-center"
+              style="cursor: pointer"
+            >
+              <i class="fa-solid fa-xmark"></i>
+              <i class="fa-solid fa-check" style="color: green"></i>
+              <i class="fa-solid fa-trash" style="color: red"></i>
+            </div>
           </div>
           <th scope="col" *ngFor="let data of tableData; let i = index">
             {{ data.name }}
             <i
               class="fa-solid fa-sort"
               *ngIf="data.sortable"
-              id="{{i}}"
+              id="{{ i }}"
               (click)="sort(data)"
-              style="cursor: pointer;"
+              style="cursor: pointer"
             ></i>
-          
           </th>
         </tr>
       </thead>
       <tbody class="table-body">
-        <tr *ngFor="let ticket of tickets; let i = index" >
+        <tr *ngFor="let ticket of tickets; let i = index">
           <div class="properties d-flex gap-4 align-items-center">
             <td>
               <input
@@ -34,11 +46,26 @@
                 class="form-check-input"
               />
             </td>
-            <i class="fa-solid fa-ellipsis-vertical" style="cursor: pointer;" (click)="openAction(i)"></i>
-            <div class="actions gap-2 align-items-center"  style="cursor: pointer;" >
-              <i class="fa-solid fa-xmark"  (click)="rejectAction(i)" ></i>
-              <i class="fa-solid fa-check" style="color: green;" (click)="acceptAction(i)"></i>
-              <i class="fa-solid fa-trash" style="color: red;" (click)="deleteAction(i)"></i>
+            <i
+              class="fa-solid fa-ellipsis-vertical"
+              style="cursor: pointer"
+              (click)="openAction(i)"
+            ></i>
+            <div
+              class="actions gap-2 align-items-center"
+              style="cursor: pointer"
+            >
+              <i class="fa-solid fa-xmark" (click)="rejectAction(i)"></i>
+              <i
+                class="fa-solid fa-check"
+                style="color: green"
+                (click)="acceptAction(i)"
+              ></i>
+              <i
+                class="fa-solid fa-trash"
+                style="color: red"
+                (click)="deleteAction(i)"
+              ></i>
             </div>
           </div>
           <td>{{ ticket.ticketNo }}</td>

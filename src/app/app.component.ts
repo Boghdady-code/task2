@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +7,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   title = 'task2';
-
-  selectedData: any[] = [];
   sorted: boolean = false;
-  popupMenu: boolean = false;
+  
+  
 
   tableData = [
     {
@@ -87,10 +86,26 @@ export class AppComponent implements OnInit {
     },
   ];
 
-  // sendData(ticket: any) {
-  //   this.selectedData.push(ticket);
-  //   console.log(this.selectedData);
-  // }
+  openActionAll() {
+    let action = document.getElementsByClassName('actions-all')[0];
+
+    if (action.classList.contains('popup')) {
+      action.classList.remove('popup');
+      action.classList.add('popdown');
+    } else if (action.classList.contains('popdown')) {
+      action.classList.remove('popdown');
+      action.classList.add('popup');
+    } else if (
+      action.classList.contains('popup') == false &&
+      action.classList.contains('popdown') == false
+    ) {
+      action.classList.add('popup');
+    }
+
+  }
+
+
+ 
 
   sort(data: any) {
     if (data.name == 'Ticket No' && data.sortable == true) {
