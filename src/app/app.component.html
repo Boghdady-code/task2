@@ -8,7 +8,6 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                [checked]="selectedData.length > 1"
               />
             </th>
             <i class="fa-solid fa-ellipsis-vertical"></i>
@@ -17,30 +16,32 @@
             {{ data.name }}
             <i
               class="fa-solid fa-sort"
-              *ngIf="data.sortable && !sorted"
-              (click)="sortByAscending(data)"
+              *ngIf="data.sortable"
+              id="{{i}}"
+              (click)="sort(data)"
+              style="cursor: pointer;"
             ></i>
-            <i
-              class="fa-solid fa-sort-down"
-              *ngIf="data.sortable && sorted"
-              (click)="sortByDescending(data)"
-            ></i>
+          
           </th>
         </tr>
       </thead>
-      <tbody>
-        <tr *ngFor="let ticket of tickets">
+      <tbody class="table-body">
+        <tr *ngFor="let ticket of tickets; let i = index" >
           <div class="properties d-flex gap-4 align-items-center">
             <td>
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="sendData(ticket)"
               />
             </td>
-            <i class="fa-solid fa-ellipsis-vertical"></i>
+            <i class="fa-solid fa-ellipsis-vertical" style="cursor: pointer;" (click)="openAction(i)"></i>
+            <div class="actions gap-2 align-items-center"  style="cursor: pointer;" >
+              <i class="fa-solid fa-xmark"  (click)="rejectAction(i)" ></i>
+              <i class="fa-solid fa-check" style="color: green;" (click)="acceptAction(i)"></i>
+              <i class="fa-solid fa-trash" style="color: red;" (click)="deleteAction(i)"></i>
+            </div>
           </div>
-          <td data-target="ticketNo">{{ ticket.ticketNo }}</td>
+          <td>{{ ticket.ticketNo }}</td>
           <td>{{ ticket.title }}</td>
           <td>{{ ticket.description }}</td>
           <td>{{ ticket.status }}</td>
