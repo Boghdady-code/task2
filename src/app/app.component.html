@@ -1,7 +1,12 @@
 <div class="container mt-5">
   <div class="drag-container d-flex gap-3 mb-3">
     <button class="btn btn-primary refersh">Refersh</button>
-    <div class="drag">Drag Here</div>
+    <div class="drag  d-flex gap-3"  (dragover)="allowDrop($event)" 
+    (drop)="onDrop($event)"  >
+    <div *ngFor="let column of droppedColumns" class="dropped-column ">
+      {{ column }}
+    </div>
+  </div>
   </div>
   <div class="table">
     <table class="table table-striped">
@@ -25,13 +30,14 @@
               <i class="fa-solid fa-trash" style="color: red"></i>
             </div>
           </div>
-          <th scope="col" *ngFor="let data of tableData; let i = index">
+          <th scope="col" *ngFor="let data of tableData; let i = index" draggable="true" 
+          (dragstart)="onDragStart($event, i)">
             {{ data.name }}
             <i
               class="fa-solid fa-sort"
               *ngIf="data.sortable"
-              id="{{ i }}"
-              (click)="sort(data)"
+              id="{{i}}"
+              (click)="sort(data, i)"
               style="cursor: pointer"
             ></i>
           </th>
@@ -50,10 +56,12 @@
               class="fa-solid fa-ellipsis-vertical"
               style="cursor: pointer"
               (click)="openAction(i)"
+              
             ></i>
             <div
               class="actions gap-2 align-items-center"
               style="cursor: pointer"
+              
             >
               <i class="fa-solid fa-xmark" (click)="rejectAction(i)"></i>
               <i
@@ -68,14 +76,24 @@
               ></i>
             </div>
           </div>
-          <td>{{ ticket.ticketNo }}</td>
-          <td>{{ ticket.title }}</td>
-          <td>{{ ticket.description }}</td>
-          <td>{{ ticket.status }}</td>
-          <td>{{ ticket.date }}</td>
-          <td>{{ ticket.time }}</td>
+          <td #ticketNo>{{ ticket.ticketNo }}</td>
+          <td #title>{{ ticket.title }}</td>
+          <td #description>{{ ticket.description }}</td>
+          <td #status>{{ ticket.status }}</td>
+          <td #date>{{ ticket.date }}</td>
+          <td #time>{{ ticket.time }}</td>
         </tr>
       </tbody>
     </table>
   </div>
+  <!-- <p-paginator
+    (onPageChange)="onPageChange($event)"
+    [rows]="limit"
+    [totalRecords]="totalDocuments"
+
+    
+    
+  ></p-paginator> -->
+  
+
 </div>

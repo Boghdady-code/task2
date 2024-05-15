@@ -53,3 +53,20 @@
 
     
 }
+.drag {
+    border: 1px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+  }
+  
+  th[draggable="true"],
+  .dropped-column {
+    cursor: move;
+  }
+  
+  .dropped-column {
+    margin-top: 10px;
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 5px;
+  }

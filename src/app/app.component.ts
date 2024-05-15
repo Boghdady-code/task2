@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,39 +6,48 @@ import { Component, OnInit, ViewChild } from '@angular/core';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
-  title = 'task2';
   sorted: boolean = false;
-  
-  
+  @ViewChild('ticketNo') ticketNo!: ElementRef;
+  @ViewChild('title') title!: ElementRef;
+  @ViewChild('description') description!: ElementRef;
+  @ViewChild('status') status!: ElementRef;
+  @ViewChild('date') date!: ElementRef;
+  @ViewChild('time') time!: ElementRef;
 
-  tableData = [
+  tableData: any[] = [
     {
       name: 'Ticket No',
       sortable: true,
+      sortBy: 'ticketNo',
     },
     {
       name: 'Title',
       sortable: false,
+      sortBy: 'title',
     },
     {
       name: 'Description',
       sortable: false,
+      sortBy: 'description',
     },
     {
       name: 'Status',
       sortable: true,
+      sortBy: 'status',
     },
     {
       name: 'Date',
       sortable: true,
+      sortBy: 'date',
     },
     {
       name: 'Time',
       sortable: true,
+      sortBy: 'time',
     },
   ];
 
-  tickets = [
+  tickets : any[] = [
     {
       id: 1,
       ticketNo: 1,
@@ -46,7 +55,7 @@ export class AppComponent implements OnInit {
       description: 'description1',
       status: 'status1',
       date: new Date('2022-01-01'),
-      time:'10:00:00',
+      time: '10:00:00',
     },
     {
       id: 2,
@@ -55,7 +64,7 @@ export class AppComponent implements OnInit {
       description: 'description2',
       status: 'status2',
       date: new Date('2022-01-08'),
-      time:  '21:00:00',
+      time: '21:00:00',
     },
     {
       id: 3,
@@ -86,126 +95,55 @@ export class AppComponent implements OnInit {
     },
   ];
 
-  openActionAll() {
-    let action = document.getElementsByClassName('actions-all')[0];
-
-    if (action.classList.contains('popup')) {
-      action.classList.remove('popup');
-      action.classList.add('popdown');
-    } else if (action.classList.contains('popdown')) {
-      action.classList.remove('popdown');
-      action.classList.add('popup');
-    } else if (
-      action.classList.contains('popup') == false &&
-      action.classList.contains('popdown') == false
-    ) {
-      action.classList.add('popup');
-    }
-
-  }
-
-
+  draggedColumn: any = null;
+  droppedColumns: string[] = [];
  
 
-  sort(data: any) {
-    if (data.name == 'Ticket No' && data.sortable == true) {
-      let icon = document.getElementById('0');
-      if (icon?.className == 'fa-solid fa-sort') {
-        icon.className = 'fa-solid fa-sort-down';
-        icon.style.color = 'green';
-        let ticketNoArray = this.tickets.map((ticket) => ticket.ticketNo);
-        console.log(ticketNoArray);
-        let result = ticketNoArray.sort((a, b) => (a < b ? -1 : 1));
-        result.forEach((element, index) => {
-          this.tickets[index].ticketNo = element;
-        });
-      } else if (icon?.className == 'fa-solid fa-sort-down') {
-        icon.className = 'fa-solid fa-sort';
-        icon.style.color = 'black';
-        let ticketNoArray = this.tickets.map((ticket) => ticket.ticketNo);
-        console.log(ticketNoArray);
-        let result = ticketNoArray.sort((a, b) => (a > b ? -1 : 1));
-        result.forEach((element, index) => {
-          this.tickets[index].ticketNo = element;
-        });
-      }
-    } else if (data.name == 'Status' && data.sortable == true) {
-      let icon = document.getElementById('3');
-      if (icon?.className == 'fa-solid fa-sort') {
-        icon.className = 'fa-solid fa-sort-down';
-        icon.style.color = 'green';
-        let statusArray = this.tickets.map((ticket) => ticket.status);
-        console.log(statusArray);
-        let result = statusArray.sort((a, b) => a.localeCompare(b));
-        result.forEach((element, index) => {
-          this.tickets[index].status = element;
-        });
-      } else if (icon?.className == 'fa-solid fa-sort-down') {
-        icon.className = 'fa-solid fa-sort';
-        icon.style.color = 'black';
-        let statusArray = this.tickets.map((ticket) => ticket.status);
-        console.log(statusArray);
-        let result = statusArray.sort((a, b) => b.localeCompare(a));
-        result.forEach((element, index) => {
-          this.tickets[index].status = element;
-        });
-      }
-    } else if (data.name == 'Date' && data.sortable == true) {
-      let icon = document.getElementById('4');
-      if (icon?.className == 'fa-solid fa-sort') {
-        icon.className = 'fa-solid fa-sort-down';
-        icon.style.color = 'green';
-        let dateArray = this.tickets.map((ticket) => ticket.date);
-        console.log(dateArray);
-        let result = dateArray.sort((a, b) => a.getTime() - b.getTime());
-        result.forEach((element, index) => {
-          this.tickets[index].date = element;
-        });
-      } else if (icon?.className == 'fa-solid fa-sort-down') {
-        icon.className = 'fa-solid fa-sort';
-        icon.style.color = 'black';
-        let dateArray = this.tickets.map((ticket) => ticket.date);
-        console.log(dateArray);
-        let result = dateArray.sort((a, b) => b.getTime() - a.getTime());
-        result.forEach((element, index) => {
-          this.tickets[index].date = element;
-        });
-      }
-    } else if (data.name == 'Time' && data.sortable == true) {
-      let icon = document.getElementById('5');
-      if (icon?.className == 'fa-solid fa-sort') {
-        icon.className = 'fa-solid fa-sort-down';
-        icon.style.color = 'green';
-        let timeArray = this.tickets.map((ticket) => ticket.time);
-        console.log(timeArray);
-        let result = timeArray.sort((a, b) => {
-          const timeA = new Date('1970-01-01 ' + a);
-          const timeB = new Date('1970-01-01 ' + b);
-          return timeA.getTime() - timeB.getTime();
-        });
-        result.forEach((element, index) => {
-          this.tickets[index].time = element;
-        });
-      } else if (icon?.className == 'fa-solid fa-sort-down') {
-        icon.className = 'fa-solid fa-sort';
-        icon.style.color = 'black';
-        let timeArray = this.tickets.map((ticket) => ticket.time);
-        console.log(timeArray);
-        let result = timeArray.sort((a, b) => {
-          const timeA = new Date('1970-01-01 ' + a);
-          const timeB = new Date('1970-01-01 ' + b);
-          return timeB.getTime() - timeA.getTime();
-        });
-        result.forEach((element, index) => {
-          this.tickets[index].time = element;
-        });
-      }
-    }
+  onDragStart(event: DragEvent, index: number) {
+    this.draggedColumn = index;
+    event.dataTransfer?.setData('text', index.toString());
   }
 
-  openAction(index: number) {
-    let action = document.getElementsByClassName('actions')[index];
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    const index = event.dataTransfer?.getData('text');
+    if (index !== null) {
+      console.log(index);
+      const column = this.tableData[+index!];
+      this.droppedColumns.push(column.name);
 
+      if (column.name == 'Ticket No') {
+        this.removeKeyFromObjects(this.tickets, 'ticketNo');
+        this.ticketNo.nativeElement.remove();
+      } else if (column.name == 'Status') {
+        this.removeKeyFromObjects(this.tickets, 'status');
+        this.status.nativeElement.remove();
+      } else if (column.name == 'Date') {
+        this.removeKeyFromObjects(this.tickets, 'date');
+        this.date.nativeElement.remove();
+      } else if (column.name == 'Time') {
+        this.removeKeyFromObjects(this.tickets, 'time');
+        this.time.nativeElement.remove();
+      } else if (column.name == 'Title') {
+        this.removeKeyFromObjects(this.tickets, 'title');
+        this.title.nativeElement.remove();
+      } else if (column.name == 'Description') {
+        this.removeKeyFromObjects(this.tickets, 'description');
+        this.description.nativeElement.remove();
+      }
+
+      this.tableData = this.tableData.filter((_, i) => i !== +index!);
+    }
+    this.draggedColumn = null;
+  }
+
+  allowDrop(event: DragEvent) {
+    event.preventDefault();
+  }
+
+  openActionAll() {
+
+    let action = document.getElementsByClassName('actions-all')[0];
     if (action.classList.contains('popup')) {
       action.classList.remove('popup');
       action.classList.add('popdown');
@@ -219,6 +157,49 @@ export class AppComponent implements OnInit {
       action.classList.add('popup');
     }
   }
+
+  sort(data: any, i: any) {
+    console.log(data);
+    if (data.sortable) {
+        let icon;
+        icon = document.getElementById(i);
+        this.sortByProperty(icon, data.sortBy);
+    }
+}
+
+sortByProperty(icon: any, property: string) {
+    if (icon) {
+        if (icon.className === 'fa-solid fa-sort') {
+            icon.className = 'fa-solid fa-sort-down';
+            icon.style.color = 'green';
+            this.tickets.sort((a, b) => (a[property] < b[property] ? -1 : 1));
+        } else if (icon.className === 'fa-solid fa-sort-down') {
+            icon.className = 'fa-solid fa-sort';
+            icon.style.color = 'black';
+            this.tickets.sort((a, b) => (a[property] > b[property] ? -1 : 1));
+        }
+    }
+}
+
+  openAction(index: number) {
+    const allActions = document.querySelectorAll('.actions');
+    allActions.forEach((action, i) => {
+        if (i !== index) {
+            if (action.classList.contains('popup')) {
+                action.classList.remove('popup');
+                action.classList.add('popdown');
+            }
+        }
+    });
+    const clickedAction = allActions[index];
+    if (clickedAction.classList.contains('popup')) {
+        clickedAction.classList.remove('popup');
+        clickedAction.classList.add('popdown');
+    } else {
+        clickedAction.classList.remove('popdown');
+        clickedAction.classList.add('popup');
+    }
+}
 
   deleteAction(index: number) {
     this.tickets.splice(index, 1);
@@ -228,7 +209,6 @@ export class AppComponent implements OnInit {
   rejectAction(index: number) {
     this.tickets[index].status = 'Rejected';
     this.openAction(index);
-
   }
 
   acceptAction(index: number) {
@@ -236,7 +216,20 @@ export class AppComponent implements OnInit {
     this.openAction(index);
   }
 
+  removeKeyFromObjects(ticketArray: any[], keyToRemove: string) {
+    return ticketArray.forEach((ticket) => {
+      let modifiedTicket = { ...ticket };
+      delete modifiedTicket[keyToRemove];
+      console.log(modifiedTicket);
+    })
+  }
+
+
+ 
   constructor() {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    
+    
+  }
 }
