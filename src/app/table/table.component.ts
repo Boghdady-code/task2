@@ -146,12 +146,6 @@ selectAll(event:any){
     }
   }
 
- 
-
-
-  
-  
-
   loadData() {
     
     this.totalRecords = this.tickets.length;
