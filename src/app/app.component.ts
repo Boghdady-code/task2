@@ -7,12 +7,11 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   sorted: boolean = false;
-  @ViewChild('ticketNo') ticketNo!: ElementRef;
-  @ViewChild('title') title!: ElementRef;
-  @ViewChild('description') description!: ElementRef;
-  @ViewChild('status') status!: ElementRef;
-  @ViewChild('date') date!: ElementRef;
-  @ViewChild('time') time!: ElementRef;
+  selectedValues: any = [];
+  paginatedData: any[] = [];
+  totalRecords: number | undefined;
+  rows: number = 3;
+
 
   tableData: any[] = [
     {
@@ -45,9 +44,10 @@ export class AppComponent implements OnInit {
       sortable: true,
       sortBy: 'time',
     },
+    
   ];
 
-  tickets : any[] = [
+  tickets: any[] = [
     {
       id: 1,
       ticketNo: 1,
@@ -56,6 +56,7 @@ export class AppComponent implements OnInit {
       status: 'status1',
       date: new Date('2022-01-01'),
       time: '10:00:00',
+      done:false
     },
     {
       id: 2,
@@ -65,6 +66,7 @@ export class AppComponent implements OnInit {
       status: 'status2',
       date: new Date('2022-01-08'),
       time: '21:00:00',
+      done:false
     },
     {
       id: 3,
@@ -74,6 +76,7 @@ export class AppComponent implements OnInit {
       status: 'status2',
       date: new Date('2022-01-05'),
       time: '13:45:00',
+      done:false
     },
     {
       id: 4,
@@ -83,6 +86,7 @@ export class AppComponent implements OnInit {
       status: 'status2',
       date: new Date('2022-01-03'),
       time: '09:30:00',
+      done:false
     },
     {
       id: 5,
@@ -92,12 +96,12 @@ export class AppComponent implements OnInit {
       status: 'status2',
       date: new Date('2022-01-02'),
       time: '15:00:00',
+      done:false
     },
   ];
 
   draggedColumn: any = null;
   droppedColumns: string[] = [];
- 
 
   onDragStart(event: DragEvent, index: number) {
     this.draggedColumn = index;
@@ -111,28 +115,22 @@ export class AppComponent implements OnInit {
       console.log(index);
       const column = this.tableData[+index!];
       this.droppedColumns.push(column.name);
-
-      if (column.name == 'Ticket No') {
-        this.removeKeyFromObjects(this.tickets, 'ticketNo');
-        this.ticketNo.nativeElement.remove();
-      } else if (column.name == 'Status') {
-        this.removeKeyFromObjects(this.tickets, 'status');
-        this.status.nativeElement.remove();
-      } else if (column.name == 'Date') {
-        this.removeKeyFromObjects(this.tickets, 'date');
-        this.date.nativeElement.remove();
-      } else if (column.name == 'Time') {
-        this.removeKeyFromObjects(this.tickets, 'time');
-        this.time.nativeElement.remove();
-      } else if (column.name == 'Title') {
-        this.removeKeyFromObjects(this.tickets, 'title');
-        this.title.nativeElement.remove();
-      } else if (column.name == 'Description') {
-        this.removeKeyFromObjects(this.tickets, 'description');
-        this.description.nativeElement.remove();
-      }
-
+      this.droppedColumns.forEach((column) => {
+        if (this.tableData.find((c) => c.name === column)) {
+          let sortBy = this.tableData.find((c) => c.name === column)?.sortBy;
+          console.log(sortBy);
+          this.paginatedData.map((ticket) => {
+            if (ticket[sortBy]) {
+              delete ticket[sortBy];
+              let targetColumn = document.getElementsByClassName(sortBy)[0];
+              targetColumn.remove()
+            }
+          });
+        }
+      });
       this.tableData = this.tableData.filter((_, i) => i !== +index!);
+      console.log(this.droppedColumns);
+      console.log(this.draggedColumn);
     }
     this.draggedColumn = null;
   }
@@ -141,95 +139,161 @@ export class AppComponent implements OnInit {
     event.preventDefault();
   }
 
-  openActionAll() {
 
-    let action = document.getElementsByClassName('actions-all')[0];
-    if (action.classList.contains('popup')) {
-      action.classList.remove('popup');
-      action.classList.add('popdown');
-    } else if (action.classList.contains('popdown')) {
-      action.classList.remove('popdown');
-      action.classList.add('popup');
-    } else if (
-      action.classList.contains('popup') == false &&
-      action.classList.contains('popdown') == false
-    ) {
-      action.classList.add('popup');
+selectAll(event:any){
+  if (event.target.checked) {
+    this.selectedValues = [];
+    for (let index = 0; index < this.paginatedData.length; index++) {
+      this.selectedValues.push(index);
     }
+  } else {
+    this.selectedValues = [];
   }
+  
+}
+
+  openActionAll() {
+  if (this.selectedValues.length > 0) {
+  this.selectedValues.forEach((element: any) => {
+  if (this.paginatedData[element].done == false) {
+      const allActions = document.querySelector('.actions-all');
+      
+        if (allActions!.classList.contains('popup')) {
+          allActions!.classList.remove('popup');
+          allActions!.classList.add('popdown');
+        } else if (allActions!.classList.contains('popdown')) {
+          allActions!.classList.remove('popdown');
+          allActions!.classList.add('popup');
+        } else {
+          allActions!.classList.add('popup');
+        }
+    } else {
+    alert('You already Performed an Action to Ticket Number' + this.tickets[element].ticketNo)
+    }
+  })
+  }}
 
   sort(data: any, i: any) {
     console.log(data);
     if (data.sortable) {
-        let icon;
-        icon = document.getElementById(i);
-        this.sortByProperty(icon, data.sortBy);
+      let icon;
+      icon = document.getElementById(i);
+      this.sortByProperty(icon, data.sortBy);
     }
-}
+  }
 
-sortByProperty(icon: any, property: string) {
+  sortByProperty(icon: any, property: string) {
     if (icon) {
-        if (icon.className === 'fa-solid fa-sort') {
-            icon.className = 'fa-solid fa-sort-down';
-            icon.style.color = 'green';
-            this.tickets.sort((a, b) => (a[property] < b[property] ? -1 : 1));
-        } else if (icon.className === 'fa-solid fa-sort-down') {
-            icon.className = 'fa-solid fa-sort';
-            icon.style.color = 'black';
-            this.tickets.sort((a, b) => (a[property] > b[property] ? -1 : 1));
-        }
+      if (icon.className === 'fa-solid fa-sort') {
+        icon.className = 'fa-solid fa-sort-down';
+        icon.style.color = 'green';
+        this.paginatedData.sort((a, b) => (a[property] < b[property] ? -1 : 1));
+      } else if (icon.className === 'fa-solid fa-sort-down') {
+        icon.className = 'fa-solid fa-sort';
+        icon.style.color = 'black';
+        this.paginatedData.sort((a, b) => (a[property] > b[property] ? -1 : 1));
+      }
     }
-}
+  }
 
   openAction(index: number) {
     const allActions = document.querySelectorAll('.actions');
     allActions.forEach((action, i) => {
-        if (i !== index) {
-            if (action.classList.contains('popup')) {
-                action.classList.remove('popup');
-                action.classList.add('popdown');
-            }
+      if (i !== index) {
+        if (action.classList.contains('popup')) {
+          action.classList.remove('popup');
+          action.classList.add('popdown');
         }
+      }
     });
     const clickedAction = allActions[index];
     if (clickedAction.classList.contains('popup')) {
-        clickedAction.classList.remove('popup');
-        clickedAction.classList.add('popdown');
+      clickedAction.classList.remove('popup');
+      clickedAction.classList.add('popdown');
     } else {
-        clickedAction.classList.remove('popdown');
-        clickedAction.classList.add('popup');
+      clickedAction.classList.remove('popdown');
+      clickedAction.classList.add('popup');
     }
-}
+  }
+
+  selectMany(index: any, event: any) {
+    if (event.target.checked) {
+      this.selectedValues.push(index);
+      console.log(this.selectedValues);
+    } else {
+      this.selectedValues.splice(this.selectedValues.indexOf(index), 1);
+      console.log(this.selectedValues);
+    }
+  }
 
   deleteAction(index: number) {
-    this.tickets.splice(index, 1);
+    this.paginatedData.splice(index, 1);
     this.openAction(index);
   }
 
   rejectAction(index: number) {
-    this.tickets[index].status = 'Rejected';
+    this.paginatedData[index].status = 'Rejected';
     this.openAction(index);
+    this.paginatedData[index].done = true
+    console.log(this.tickets[index].done)
   }
 
   acceptAction(index: number) {
-    this.tickets[index].status = 'Accepted';
+    this.paginatedData[index].status = 'Accepted';
     this.openAction(index);
+    this.paginatedData[index].done = true
+    console.log(this.tickets[index].done)
   }
 
-  removeKeyFromObjects(ticketArray: any[], keyToRemove: string) {
-    return ticketArray.forEach((ticket) => {
-      let modifiedTicket = { ...ticket };
-      delete modifiedTicket[keyToRemove];
-      console.log(modifiedTicket);
+
+  deleteAll(){
+    this.selectedValues.forEach((element: any) => {
+      console.log(element)
+      console.log(this.tickets[element])
+    this.paginatedData.splice(element, 1)
+    this.closeAction();
     })
   }
 
+  acceptAll() {
+    this.selectedValues.forEach((element: any) => {
+      console.log(element)
+      this.paginatedData[element].status = 'Accepted';
+      this.paginatedData[element].done = true
+      this.closeAction();
+    })
+  }
 
- 
+  rejectAll() {
+    this.selectedValues.forEach((element: any) => {
+      console.log(element)
+      this.paginatedData[element].status = 'Rejected';
+      this.paginatedData[element].done = true
+      this.closeAction();
+      
+    })
+  }
+
+  closeAction() {
+    document.getElementsByClassName('actions-all')[0].classList.remove('popup')
+  }
+
+  loadData() {
+    
+    this.totalRecords = this.tickets.length;
+    this.paginate({ first: 0, rows: this.rows });
+  }
+
+  paginate(event: any) {
+    const start = event.first;
+    const end = start + event.rows;
+    this.paginatedData = this.tickets.slice(start, end);
+    console.log(event);
+  }
+
   constructor() {}
 
   ngOnInit() {
-    
-    
+    this.loadData();
   }
 }
