@@ -1,59 +1,55 @@
 .properties {
     position: relative;
-
+  
     .actions {
-        position: absolute;
-        background-color: #f5f5dc45;
-        right: -30px;
-        top: 0;
-        transform: translateY(-50%);
-        padding: 10px;
-        border-radius: 5px;
-        display: none;
-        
-
-        
-        i {
-            font-size: 12px;
-        }
+      position: absolute;
+      background-color: #f5f5dc45;
+      right: -30px;
+      top: 0;
+      transform: translateY(-50%);
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+  
+      i {
+        font-size: 12px;
+      }
     }
-
-}
-
-
-.popup {
-    
+  }
+  
+  .popup {
     display: flex !important;
-}
-
-.popdown {
+  }
+  
+  .popdown {
     display: none !important;
-}
-
-.actions-all {
-    position: absolute;
-    right: 0;
-    top: 0;
-    transform: translateY(-50%);
-    padding: 10px;
-    border-radius: 5px;
-    display: none;
-}
-
-.drag-container {
-    text-align: center;
-
-    .drag {
-        padding: 10px;
-        border: 1px solid #ccc;
-       
-        border-radius: 5px;
-        flex: 1;
+  }
+  
+  .properties-all {
+    position: relative;
+    #actions-all {
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform: translateY(-50%);
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
     }
-
-    
-}
-.drag {
+  }
+  
+  .drag-container {
+    text-align: center;
+  
+    .drag {
+      padding: 10px;
+      border: 1px solid #ccc;
+  
+      border-radius: 5px;
+      flex: 1;
+    }
+  }
+  .drag {
     border: 1px dashed #ccc;
     padding: 20px;
     text-align: center;
@@ -70,9 +66,9 @@
     padding: 5px;
     border-radius: 5px;
   }
-
-  .hide-column{
-    display: none;
-  }
-
   
+  .input-row {
+    margin-left: 10px;
+    width: 60px;
+    height: 50px;
+  }

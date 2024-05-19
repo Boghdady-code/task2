@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -6,72 +6,83 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
+  constructor() {}
+  ngOnInit() {}
+  selectedAllData: boolean = true;
 
-  constructor() { }
-  ngOnInit() {
-    
+  actions: any[] = [
+    {
+      name: 'Accept',
+      icon: 'fa-solid fa-check',
+      action: (i: any, data?: any) => {
+        data[i].status = 'Accepted';
+        data[i].done = true;
+        this.selectedAllData = false;
+        this.closeAction();
+      },
+      color: 'green',
+      actionAll: (selectedValues?: any, paginatedData?: any) => {
+        selectedValues.forEach((element: any) => {
+          console.log(element);
+          paginatedData[element].status = 'Accepted';
+          paginatedData[element].done = true;
+          this.selectedAllData = false;
+          this.closeActionAll();
+        });
+      },
+    },
+    {
+      name: 'Reject',
+      icon: 'fa-solid fa-xmark',
+      action: (i: any, data?: any) => {
+        data[i].status = 'Rejected';
+        data[i].done = true;
+        this.selectedAllData = false;
+        this.closeAction();
+      },
+      color: 'red',
+      actionAll: (selectedValues?: any, paginatedData?: any) => {
+        selectedValues.forEach((element: any) => {
+          console.log(element);
+          paginatedData[element].status = 'Rejected';
+          paginatedData[element].done = true;
+          this.selectedAllData = false;
+          this.closeActionAll();
+        });
+      },
+    },
+    {
+      name: 'Delete',
+      icon: 'fa-solid fa-trash',
+      action: (i: any, data?: any) => {
+        data.splice(i, 1);
+        data[i].done = true;
+        this.selectedAllData = false;
+        this.closeAction();
+      },
+      color: 'red',
+      actionAll: (selectedValues?: any, paginatedData?: any) => {
+        selectedValues.forEach((element: any) => {
+          console.log(element);
+          paginatedData.splice(element, 1);
+          paginatedData[element].done = true;
+          this.selectedAllData = false;
+          this.closeActionAll();
+        });
+      },
+    },
+  ];
+
+  closeActionAll() {
+    document.getElementById('actions-all')?.classList.remove('popup');
   }
 
-
-actions: any[] = [
-
-  { 
-    name: 'Accept',
-    icon: 'fa-solid fa-check',
-    action: (i : any, data?: any) => {
-      data[i].status = 'accepted';
-    },
-    color: 'green',
-    actionAll: (selectedValues?: any, paginatedData?: any) => {
-      selectedValues.forEach((element: any) => {
-        console.log(element)
-        paginatedData[element].status = 'Accepted';
-        paginatedData[element].done = true
-        this.closeAction();
-      
-      })
-      
-    }
-  },
-  { 
-    name: 'Reject',
-    icon: 'fa-solid fa-xmark',
-    action: (i : any, data?: any) => {
-      data[i].status = 'rejected';
-      
-    },
-    color: 'red',
-    actionAll: (selectedValues?: any, paginatedData?: any) => {
-      selectedValues.forEach((element: any) => {
-        console.log(element)
-        paginatedData[element].status = 'Rejected';
-        paginatedData[element].done = true
-        this.closeAction();
-      })
-    }
-  },
-  { 
-    name: 'Delete',
-    icon: 'fa-solid fa-trash',
-    action: (i : any , data?: any) => {
-      data.splice(i, 1);
-    },
-    color: 'red',
-    actionAll: (selectedValues?: any, paginatedData?: any) => {
-      selectedValues.forEach((element: any) => {
-        console.log(element)
-        paginatedData.splice(element, 1)
-        this.closeAction();
-      })
-    }
-  },
-]
-
-
-closeAction() {
-  document.getElementsByClassName('actions-all')[0].classList.remove('popup')
-}
-
+  closeAction() {
+    document.querySelectorAll('.actions').forEach((action) => {
+      action.classList.remove('popup');
+      action.classList.add('popdown');
+    });
+  }
 
   tableData: any[] = [
     {
@@ -104,7 +115,6 @@ closeAction() {
       sortable: true,
       sortBy: 'time',
     },
-    
   ];
 
   tickets: any[] = [
@@ -116,7 +126,7 @@ closeAction() {
       status: 'status1',
       date: new Date('2022-01-01'),
       time: '10:00:00',
-      done:false
+      done: false,
     },
     {
       id: 2,
@@ -126,7 +136,7 @@ closeAction() {
       status: 'status2',
       date: new Date('2022-01-08'),
       time: '21:00:00',
-      done:false
+      done: false,
     },
     {
       id: 3,
@@ -136,7 +146,7 @@ closeAction() {
       status: 'status2',
       date: new Date('2022-01-05'),
       time: '13:45:00',
-      done:false
+      done: false,
     },
     {
       id: 4,
@@ -146,7 +156,7 @@ closeAction() {
       status: 'status2',
       date: new Date('2022-01-03'),
       time: '09:30:00',
-      done:false
+      done: false,
     },
     {
       id: 5,
@@ -156,7 +166,57 @@ closeAction() {
       status: 'status2',
       date: new Date('2022-01-02'),
       time: '15:00:00',
-      done:false
+      done: false,
+    },
+    {
+      id: 5,
+      ticketNo: 2,
+      title: 'title2',
+      description: 'description2',
+      status: 'status2',
+      date: new Date('2022-01-02'),
+      time: '15:00:00',
+      done: false,
+    },
+    {
+      id: 5,
+      ticketNo: 2,
+      title: 'title2',
+      description: 'description2',
+      status: 'status2',
+      date: new Date('2022-01-02'),
+      time: '15:00:00',
+      done: false,
+    },
+    {
+      id: 5,
+      ticketNo: 2,
+      title: 'title2',
+      description: 'description2',
+      status: 'status2',
+      date: new Date('2022-01-02'),
+      time: '15:00:00',
+      done: false,
+    },
+    {
+      id: 5,
+      ticketNo: 2,
+      title: 'title2',
+      description: 'description2',
+      status: 'status2',
+      date: new Date('2022-01-02'),
+      time: '15:00:00',
+      done: false,
+    },
+    {
+      id: 5,
+      ticketNo: 2,
+      title: 'title2',
+      description: 'description2',
+      status: 'status2',
+      date: new Date('2022-01-02'),
+      time: '15:00:00',
+      done: false,
     },
   ];
 }
