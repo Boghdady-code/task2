@@ -43,6 +43,7 @@
               id="actions-all"
             >
               <i
+              [ngStyle]="{color: action.color}"
                 class="{{ action.icon }}"
                 *ngFor="let action of actions"
                 (click)="
@@ -91,6 +92,7 @@
               style="cursor: pointer"
             >
               <i
+              [ngStyle]="{color: action.color}"
                 class="{{ action.icon }}"
                 *ngFor="let action of actions"
                 (click)="action.action(i, paginatedData)"
