@@ -185,12 +185,10 @@ export class TableComponent implements OnInit {
     const start = event.first;
     const end = start + event.rows;
     this.paginatedData = this.tickets.slice(start, end);
-    console.log("Paginating: ", this.droppedColumns);
     this.droppedColumns.forEach((column) => {
       const ticket = this.initialTableData.find(ticket => ticket.name === column);
       if (ticket) {
         const columnDataName = ticket.sortBy;
-        console.log(`Hiding column: ${columnDataName}`);
         this.hideColumn(columnDataName);
       }
     });
