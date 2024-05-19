@@ -10,16 +10,15 @@ export class TableComponent implements OnInit {
   selectedValues: any = [];
   paginatedData: any[] = [];
   totalRecords: number | undefined;
+  initialTableData: any[] = [];
+  draggedColumn: any = null;
+  droppedColumns: string[] = [];
+
   @Input() rows: number = 3;
   @Input() selectAllData: boolean = true;
-  initialTableData: any[] = [];
-
   @Input() tableData: any[] = [];
   @Input() tickets: any[] = [];
   @Input() actions: any[] = [];
-
-  draggedColumn: any = null;
-  droppedColumns: string[] = [];
 
   refreshTable() {
     this.tableData = [...this.initialTableData];
@@ -28,17 +27,11 @@ export class TableComponent implements OnInit {
       this.tableData.forEach((ticket) => {
         if (ticket.name == column) {
           const columnDataName = ticket.sortBy;
-          const targetElements =
-            document.getElementsByClassName(columnDataName);
-          Array.from(targetElements).forEach((element) => {
-            element.classList.remove('d-none');
-          });
+          this.showColumn(columnDataName);
         }
       });
     });
     this.droppedColumns = [];
-
-    this.loadData();
   }
 
   onDragStart(event: DragEvent, index: number) {
@@ -59,6 +52,7 @@ export class TableComponent implements OnInit {
   }
 
   hideColumn(columnDataName: string) {
+    console.log(`Hiding elements with class: ${columnDataName}`);
     const targetElements = document.getElementsByClassName(columnDataName);
     Array.from(targetElements).forEach((element) => {
       element.classList.add('d-none');
@@ -66,6 +60,8 @@ export class TableComponent implements OnInit {
   }
 
   showColumn(columnDataName: string) {
+    console.log(`Showing elements with class: ${columnDataName}`); 
+
     const targetElements = document.getElementsByClassName(columnDataName);
     Array.from(targetElements).forEach((element) => {
       element.classList.remove('d-none');
@@ -105,7 +101,6 @@ export class TableComponent implements OnInit {
 
   openActionAll() {
     const actionAll = document.querySelector('#actions-all');
-
     if (this.selectedValues.length > 0) {
       let hasDoneTicket = false;
       this.selectedValues.forEach((element: any) => {
@@ -186,11 +181,20 @@ export class TableComponent implements OnInit {
   }
 
   paginate(event: any) {
+    console.log(this.droppedColumns);
     const start = event.first;
     const end = start + event.rows;
     this.paginatedData = this.tickets.slice(start, end);
-    this.droppedColumns = [];
-    this.draggedColumn = null;
+    console.log("Paginating: ", this.droppedColumns);
+    this.droppedColumns.forEach((column) => {
+      const ticket = this.initialTableData.find(ticket => ticket.name === column);
+      if (ticket) {
+        const columnDataName = ticket.sortBy;
+        console.log(`Hiding column: ${columnDataName}`);
+        this.hideColumn(columnDataName);
+      }
+    });
+    
   }
 
   constructor(private renderer: Renderer2) {}
