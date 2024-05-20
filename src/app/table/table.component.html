@@ -109,24 +109,17 @@
       </tbody>
     </table>
   </div>
-  <div class="pagination d-flex justify-content-between align-items-center">
-    <p-paginator
-      [rows]="rows"
-      [totalRecords]="totalRecords"
-      (onPageChange)="paginate($event)"
-      [showCurrentPageReport]="true"
-      [currentPageReportTemplate]="
-        'Showing {first} to {last} of {totalRecords} entries'
-      "
-      [style]="{ 'margin-top': '20px', background: '#f6f6f6' }"
-      styleClass="paginator"
-    >
-    </p-paginator>
-    <input
-      type="number"
-      [(ngModel)]="rows"
-      class="form-control input-row"
-      (ngModelChange)="loadData()"
-    />
+  <div class="pagination d-flex justify-content-between align-items-center" >
+    <div class="pagination-controls d-flex gap-2">
+      <button (click)="previousPage()" [disabled]="currentPage === 1" class="btn btn-success">Previous</button>
+    
+      <button *ngFor="let page of [].constructor(totalPages); let i = index"
+              (click)="goToPage(i + 1)"
+              [class.active]="currentPage === i + 1" class="btn btn-success">
+        {{ i + 1 }}
+      </button>
+    
+      <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="btn btn-success" >Next</button>
+    </div>
   </div>
 </div>

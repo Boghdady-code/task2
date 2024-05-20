@@ -9,16 +9,52 @@ export class TableComponent implements OnInit {
   sorted: boolean = false;
   selectedValues: any = [];
   paginatedData: any[] = [];
-  totalRecords: number | undefined;
+  currentPage: number = 1;
+  itemsPerPage: number = 3;
+  totalPages: number = 0;
+
+  
+
   initialTableData: any[] = [];
   draggedColumn: any = null;
   droppedColumns: string[] = [];
 
-  @Input() rows: number = 3;
+  
   @Input() selectAllData: boolean = true;
   @Input() tableData: any[] = [];
   @Input() tickets: any[] = [];
   @Input() actions: any[] = [];
+
+
+
+
+  updatePaginatedData() {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedData = this.tickets.slice(startIndex, endIndex);
+  }
+
+
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePaginatedData();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedData();
+    }
+  }
+
+  previousPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedData();
+    }
+  }
 
   refreshTable() {
     this.tableData = [...this.initialTableData];
@@ -175,30 +211,12 @@ export class TableComponent implements OnInit {
     }
   }
 
-  loadData() {
-    this.totalRecords = this.tickets.length;
-    this.paginate({ first: 0, rows: this.rows });
-  }
-
-  paginate(event: any) {
-    console.log(this.droppedColumns);
-    const start = event.first;
-    const end = start + event.rows;
-    this.paginatedData = this.tickets.slice(start, end);
-    this.droppedColumns.forEach((column) => {
-      const ticket = this.initialTableData.find(ticket => ticket.name === column);
-      if (ticket) {
-        const columnDataName = ticket.sortBy;
-        this.hideColumn(columnDataName);
-      }
-    });
-    
-  }
 
   constructor(private renderer: Renderer2) {}
 
   ngOnInit() {
-    this.loadData();
+    this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage);
+    this.updatePaginatedData();
     this.initialTableData = [...this.tableData];
   }
 }

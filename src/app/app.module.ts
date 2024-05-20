@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PaginatorModule } from 'primeng/paginator';
 import { TableComponent } from './table/table.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { TableComponent } from './table/table.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    PaginatorModule
+    PaginatorModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent],

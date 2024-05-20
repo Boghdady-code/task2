@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TableService } from './table.service';
 
 @Component({
   selector: 'app-root',
@@ -6,8 +7,14 @@ import { Component, OnInit } from '@angular/core';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
-  constructor() {}
-  ngOnInit() {}
+
+  
+  
+  
+  constructor(private tableService: TableService) {}
+  ngOnInit() {
+    
+  }
   selectedAllData: boolean = true;
 
   actions: any[] = [
