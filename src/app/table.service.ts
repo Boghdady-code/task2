@@ -8,14 +8,14 @@ import { Observable } from 'rxjs';
 export class TableService {
 
   constructor(private httpClient:HttpClient) { }
+getTickets(queries ?:any):Observable<any>{
 
+  return this.httpClient.get('http://localhost:3000/api/tickets', {
+params:queries
+  });
+}
 
-  getTickets(queries?: any):Observable<any>{
-    return this.httpClient.get('http://localhost:3000/api/tickets',{
-      params:queries
-    });
-  }
-
+  
   getTableData():Observable<any>{
     return this.httpClient.get('http://localhost:3000/api/tabledata');
   }

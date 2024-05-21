@@ -24,7 +24,7 @@ export class TableComponent implements OnInit, OnChanges {
   paginatedData: any[] = [];
 
   @Input() currentPage: number = 1;
-  @Input() itemsPerPage: number = 3;
+  @Input() itemsPerPage: number | undefined;
   @Input() totalPages: number = 0;
   @Input() serverConnected: boolean = false;
   @Input() selectAllData: boolean = true;
@@ -34,7 +34,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.serverConnected) {
-      this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage);
+      this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
       this.updatePaginatedData();
     }
 
@@ -58,19 +58,20 @@ export class TableComponent implements OnInit, OnChanges {
   droppedColumns: string[] = [];
 
   updatePaginatedData() {
-    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-    const endIndex = startIndex + this.itemsPerPage;
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage!;
+    const endIndex = startIndex + this.itemsPerPage!;
     this.paginatedData = this.tickets.slice(startIndex, endIndex);
   }
 
   goToPage(page: number) {
+    this.selectedValues = [];
     if (!this.serverConnected) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
         this.updatePaginatedData();
       }
     } else {
-      this.tableService.getTickets({ page }).subscribe((res: any) => {
+      this.tableService.getTickets({ page, per_page: this.itemsPerPage }).subscribe((res: any) => {
         this.tickets = res.data.data;
         this.currentPage = res.data.pagination.current_page;
         this.itemsPerPage = res.data.pagination.total_perpage;
@@ -80,6 +81,7 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   nextPage() {
+    this.selectedValues = [];
     if (!this.serverConnected) {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -87,7 +89,7 @@ export class TableComponent implements OnInit, OnChanges {
       }
     } else {
       this.tableService
-        .getTickets({ page: this.currentPage + 1 })
+        .getTickets({ page: this.currentPage + 1, per_page: this.itemsPerPage })
         .subscribe((res: any) => {
           this.tickets = res.data.data;
           this.currentPage = res.data.pagination.current_page;
@@ -98,6 +100,7 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   previousPage() {
+    this.selectedValues = [];
     if (!this.serverConnected) {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -105,7 +108,7 @@ export class TableComponent implements OnInit, OnChanges {
       }
     } else {
       this.tableService
-        .getTickets({ page: this.currentPage - 1 })
+        .getTickets({ page: this.currentPage - 1, per_page: this.itemsPerPage })
         .subscribe((res: any) => {
           this.tickets = res.data.data;
           this.currentPage = res.data.pagination.current_page;
