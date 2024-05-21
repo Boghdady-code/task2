@@ -1,32 +1,61 @@
-import { Component, Input, OnInit, Renderer2 } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  Renderer2,
+  SimpleChanges,
+} from '@angular/core';
+import { TableService } from '../table.service';
 
 @Component({
   selector: 'app-table',
   templateUrl: './table.component.html',
   styleUrl: './table.component.scss',
 })
-export class TableComponent implements OnInit {
+export class TableComponent implements OnInit, OnChanges {
+  constructor(
+    private renderer: Renderer2,
+    private tableService: TableService
+  ) {}
+
   sorted: boolean = false;
   selectedValues: any = [];
   paginatedData: any[] = [];
-  currentPage: number = 1;
-  itemsPerPage: number = 3;
-  totalPages: number = 0;
 
-  
-
-  initialTableData: any[] = [];
-  draggedColumn: any = null;
-  droppedColumns: string[] = [];
-
-  
+  @Input() currentPage: number = 1;
+  @Input() itemsPerPage: number = 3;
+  @Input() totalPages: number = 0;
+  @Input() serverConnected: boolean = false;
   @Input() selectAllData: boolean = true;
   @Input() tableData: any[] = [];
   @Input() tickets: any[] = [];
   @Input() actions: any[] = [];
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.serverConnected) {
+      this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage);
+      this.updatePaginatedData();
+    }
 
+    this.initialTableData = [...this.tableData];
+    console.log(this.serverConnected);
+  }
 
+  updatePerPage() {
+    this.tableService
+      .getTickets({ page: this.currentPage, per_page: this.itemsPerPage })
+      .subscribe((res: any) => {
+        this.tickets = res.data.data;
+        this.currentPage = res.data.pagination.current_page;
+        this.itemsPerPage = res.data.pagination.total_perpage;
+        this.totalPages = res.data.pagination.total_page;
+      });
+  }
+
+  initialTableData: any[] = [];
+  draggedColumn: any = null;
+  droppedColumns: string[] = [];
 
   updatePaginatedData() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
@@ -34,25 +63,55 @@ export class TableComponent implements OnInit {
     this.paginatedData = this.tickets.slice(startIndex, endIndex);
   }
 
-
   goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.updatePaginatedData();
+    if (!this.serverConnected) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        this.updatePaginatedData();
+      }
+    } else {
+      this.tableService.getTickets({ page }).subscribe((res: any) => {
+        this.tickets = res.data.data;
+        this.currentPage = res.data.pagination.current_page;
+        this.itemsPerPage = res.data.pagination.total_perpage;
+        this.totalPages = res.data.pagination.total_page;
+      });
     }
   }
 
   nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.updatePaginatedData();
+    if (!this.serverConnected) {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        this.updatePaginatedData();
+      }
+    } else {
+      this.tableService
+        .getTickets({ page: this.currentPage + 1 })
+        .subscribe((res: any) => {
+          this.tickets = res.data.data;
+          this.currentPage = res.data.pagination.current_page;
+          this.itemsPerPage = res.data.pagination.total_perpage;
+          this.totalPages = res.data.pagination.total_page;
+        });
     }
   }
 
   previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.updatePaginatedData();
+    if (!this.serverConnected) {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        this.updatePaginatedData();
+      }
+    } else {
+      this.tableService
+        .getTickets({ page: this.currentPage - 1 })
+        .subscribe((res: any) => {
+          this.tickets = res.data.data;
+          this.currentPage = res.data.pagination.current_page;
+          this.itemsPerPage = res.data.pagination.total_perpage;
+          this.totalPages = res.data.pagination.total_page;
+        });
     }
   }
 
@@ -96,7 +155,7 @@ export class TableComponent implements OnInit {
   }
 
   showColumn(columnDataName: string) {
-    console.log(`Showing elements with class: ${columnDataName}`); 
+    console.log(`Showing elements with class: ${columnDataName}`);
 
     const targetElements = document.getElementsByClassName(columnDataName);
     Array.from(targetElements).forEach((element) => {
@@ -129,7 +188,11 @@ export class TableComponent implements OnInit {
 
   selectAll(event: any) {
     if (event.target.checked) {
-      this.selectedValues = this.paginatedData.map((_, index) => index);
+      if (this.serverConnected) {
+        this.selectedValues = this.tickets.map((_, index) => index);
+      } else {
+        this.selectedValues = this.paginatedData.map((_, index) => index);
+      }
     } else {
       this.selectedValues = [];
     }
@@ -140,13 +203,24 @@ export class TableComponent implements OnInit {
     if (this.selectedValues.length > 0) {
       let hasDoneTicket = false;
       this.selectedValues.forEach((element: any) => {
-        if (this.paginatedData[element].done) {
-          this.selectAllData = false;
-          alert(
-            'You already performed an action on Ticket Number ' +
-              this.paginatedData[element].ticketNo
-          );
-          hasDoneTicket = true;
+        if (this.serverConnected) {
+          if (this.tickets[element].done) {
+            this.selectAllData = false;
+            alert(
+              'You already performed an action on Ticket Number ' +
+                this.tickets[element].ticketNo
+            );
+            hasDoneTicket = true;
+          }
+        } else {
+          if (this.paginatedData[element].done) {
+            this.selectAllData = false;
+            alert(
+              'You already performed an action on Ticket Number ' +
+                this.paginatedData[element].ticketNo
+            );
+            hasDoneTicket = true;
+          }
         }
       });
 
@@ -174,11 +248,23 @@ export class TableComponent implements OnInit {
       if (icon.className === 'fa-solid fa-sort') {
         icon.className = 'fa-solid fa-sort-down';
         icon.style.color = 'green';
-        this.paginatedData.sort((a, b) => (a[property] < b[property] ? -1 : 1));
+        if (this.serverConnected) {
+          this.tickets.sort((a, b) => (a[property] < b[property] ? -1 : 1));
+        } else {
+          this.paginatedData.sort((a, b) =>
+            a[property] < b[property] ? -1 : 1
+          );
+        }
       } else if (icon.className === 'fa-solid fa-sort-down') {
         icon.className = 'fa-solid fa-sort';
         icon.style.color = 'black';
-        this.paginatedData.sort((a, b) => (a[property] > b[property] ? -1 : 1));
+        if (this.serverConnected) {
+          this.tickets.sort((a, b) => (a[property] > b[property] ? -1 : 1));
+        } else {
+          this.paginatedData.sort((a, b) =>
+            a[property] > b[property] ? -1 : 1
+          );
+        }
       }
     }
   }
@@ -211,12 +297,5 @@ export class TableComponent implements OnInit {
     }
   }
 
-
-  constructor(private renderer: Renderer2) {}
-
-  ngOnInit() {
-    this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage);
-    this.updatePaginatedData();
-    this.initialTableData = [...this.tableData];
-  }
+  ngOnInit() {}
 }

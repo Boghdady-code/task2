@@ -7,15 +7,29 @@ import { TableService } from './table.service';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
+  selectedAllData: boolean = true;
+  serverConnected: boolean = false;
+  currentPage: number = 1;
+  itemsPerPage: number = 3;
+  totalPages: number = 0;
 
-  
-  
-  
   constructor(private tableService: TableService) {}
   ngOnInit() {
-    
+    this.tableService.getTickets().subscribe((res: any) => {
+      console.log(res);
+      this.serverConnected = true;
+      this.tickets = res.data.data;
+      this.currentPage = res.data.pagination.current_page;
+      this.itemsPerPage = res.data.pagination.total_perpage;
+      this.totalPages = res.data.pagination.total_page;
+    });
+
+    this.tableService.getTableData().subscribe((res: any) => {
+      console.log(res);
+      this.serverConnected = true;
+      this.tableData = res.data;
+    });
   }
-  selectedAllData: boolean = true;
 
   actions: any[] = [
     {

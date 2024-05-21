@@ -72,7 +72,7 @@
         </tr>
       </thead>
       <tbody class="table-body">
-        <tr *ngFor="let ticket of paginatedData; let i = index">
+        <ng-container *ngIf="serverConnected == false"><tr *ngFor="let ticket of paginatedData; let i = index">
           <div class="properties d-flex gap-4 align-items-center">
             <td>
               <input
@@ -105,7 +105,44 @@
           <td class="status">{{ ticket.status }}</td>
           <td class="date">{{ ticket.date }}</td>
           <td class="time">{{ ticket.time }}</td>
-        </tr>
+        </tr></ng-container>
+        <ng-container *ngIf="serverConnected == true">
+          <tr *ngFor="let ticket of tickets; let i = index">
+            <div class="properties d-flex gap-4 align-items-center">
+              <td>
+                <input
+                  type="checkbox"
+                  class="form-check-input"
+                  (click)="selectMany(i, $event)"
+                  [checked]="selectedValues.includes(i)"
+                />
+              </td>
+              <i
+                class="fa-solid fa-ellipsis-vertical"
+                style="cursor: pointer"
+                (click)="openAction(i)"
+              ></i>
+              <div
+                class="actions gap-2 align-items-center"
+                style="cursor: pointer"
+              >
+                <i
+                [ngStyle]="{color: action.color}"
+                  class="{{ action.icon }}"
+                  *ngFor="let action of actions"
+                  (click)="action.action(i, paginatedData)"
+                ></i>
+              </div>
+            </div>
+            <td class="ticketNo">{{ ticket.ticketNo }}</td>
+            <td class="title">{{ ticket.title }}</td>
+            <td class="description">{{ ticket.description }}</td>
+            <td class="status">{{ ticket.status }}</td>
+            <td class="date">{{ ticket.date }}</td>
+            <td class="time">{{ ticket.time }}</td>
+          </tr>
+        </ng-container>
+        
       </tbody>
     </table>
   </div>
@@ -120,6 +157,18 @@
       </button>
     
       <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="btn btn-success" >Next</button>
+      
+    </div>
+    <div class="input-perpage">
+      <input
+        type="number"
+        [(ngModel)]="itemsPerPage"
+        (ngModelChange)="updatePerPage()"
+       
+        class="form-control"
+        min="1"
+        max="10"
+      />
     </div>
   </div>
 </div>
