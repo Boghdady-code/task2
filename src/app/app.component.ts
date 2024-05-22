@@ -12,23 +12,22 @@ export class AppComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 3;
   totalPages: number = 0;
+  
 
   constructor(private tableService: TableService) {}
-  ngOnInit() {
-    this.tableService.getTickets().subscribe((res: any) => {
-      console.log(res);
-      this.serverConnected = true;
-      this.tickets = res.data.data;
-      this.currentPage = res.data.pagination.current_page;
-      this.itemsPerPage = res.data.pagination.total_perpage;
-      this.totalPages = res.data.pagination.total_page;
-    });
 
-    this.tableService.getTableData().subscribe((res: any) => {
-      console.log(res);
-      this.serverConnected = true;
-      this.tableData = res.data;
-    });
+  
+  ngOnInit() {
+    // this.tableService.getData(this.links[0].link).subscribe((res)=>{
+    //   console.log(res);
+    //   this.serverConnected = true;
+    //   this.tickets = res.data.data;
+      
+    //   this.currentPage = res.data.pagination.current_page;
+    //   this.itemsPerPage = res.data.pagination.total_perpage;
+    //   this.totalPages = res.data.pagination.total_page;
+
+    // })
   }
 
   actions: any[] = [
@@ -36,74 +35,61 @@ export class AppComponent implements OnInit {
       name: 'Accept',
       icon: 'fa-solid fa-check',
       action: (i: any, data?: any) => {
+        if (i.length > 0) {
+          for (let index = 0; index < i.length; index++) {
+            data[i[index]].status = 'Accepted';
+            data[i[index]].done = true;
+          }
+        } else {
         data[i].status = 'Accepted';
         data[i].done = true;
         this.selectedAllData = false;
-        this.closeAction();
+        }
       },
       color: 'green',
-      actionAll: (selectedValues?: any, paginatedData?: any) => {
-        selectedValues.forEach((element: any) => {
-          console.log(element);
-          paginatedData[element].status = 'Accepted';
-          paginatedData[element].done = true;
-          this.selectedAllData = false;
-          this.closeActionAll();
-        });
-      },
+      
+      actionKey: 1,
     },
     {
       name: 'Reject',
       icon: 'fa-solid fa-xmark',
       action: (i: any, data?: any) => {
+        if (i.length > 0) {
+          for (let index = 0; index < i.length; index++) {
+            data[i[index]].status = 'Rejected';
+            data[i[index]].done = true;
+          }
+        } else {
         data[i].status = 'Rejected';
         data[i].done = true;
         this.selectedAllData = false;
-        this.closeAction();
+        }
       },
       color: 'red',
-      actionAll: (selectedValues?: any, paginatedData?: any) => {
-        selectedValues.forEach((element: any) => {
-          console.log(element);
-          paginatedData[element].status = 'Rejected';
-          paginatedData[element].done = true;
-          this.selectedAllData = false;
-          this.closeActionAll();
-        });
-      },
+      actionKey: 2,
     },
     {
+
       name: 'Delete',
       icon: 'fa-solid fa-trash',
       action: (i: any, data?: any) => {
+        if (i.length > 0) {
+          for (let index = 0; index < i.length; index++) {
+            data[i[index]].done = true;
+            console.log('deleted');
+          }
+          
+        } else {
         data.splice(i, 1);
         data[i].done = true;
         this.selectedAllData = false;
-        this.closeAction();
+       
+        }
       },
       color: 'red',
-      actionAll: (selectedValues?: any, paginatedData?: any) => {
-        selectedValues.forEach((element: any) => {
-          console.log(element);
-          paginatedData.splice(element, 1);
-          paginatedData[element].done = true;
-          this.selectedAllData = false;
-          this.closeActionAll();
-        });
-      },
+      actionKey: 3,
     },
   ];
-
-  closeActionAll() {
-    document.getElementById('actions-all')?.classList.remove('popup');
-  }
-
-  closeAction() {
-    document.querySelectorAll('.actions').forEach((action) => {
-      action.classList.remove('popup');
-      action.classList.add('popdown');
-    });
-  }
 
   tableData: any[] = [
     {
@@ -135,7 +121,8 @@ export class AppComponent implements OnInit {
       name: 'Time',
       sortable: true,
       sortBy: 'time',
-    },
+    }
+    
   ];
 
   tickets: any[] = [
@@ -148,6 +135,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-01'),
       time: '10:00:00',
       done: false,
+      actions:[1]
     },
     {
       id: 2,
@@ -158,6 +146,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-08'),
       time: '21:00:00',
       done: false,
+      actions:[2,3]
     },
     {
       id: 3,
@@ -168,6 +157,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-05'),
       time: '13:45:00',
       done: false,
+      actions:[1,2,3]
     },
     {
       id: 4,
@@ -178,6 +168,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-03'),
       time: '09:30:00',
       done: false,
+      actions:[1,3]
     },
     {
       id: 5,
@@ -188,6 +179,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      actions:[2,3]
     },
     {
       id: 6,
@@ -198,6 +190,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      actions:[1,2,3]
     },
     {
       id: 7,
@@ -208,6 +201,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      actions:[1,2,3]
     },
     {
       id: 8,
@@ -218,6 +212,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      actions:[2,3]
     },
     {
       id: 9,
@@ -228,6 +223,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      actions:[1,3]
     },
     {
       id: 10,
@@ -238,6 +234,11 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      actions:[1,2,3]
     },
   ];
+
+  links: any[] = [{
+    link: 'http://localhost:3000/api/tickets',
+  }];
 }

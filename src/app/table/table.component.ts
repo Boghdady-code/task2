@@ -24,13 +24,16 @@ export class TableComponent implements OnInit, OnChanges {
   paginatedData: any[] = [];
 
   @Input() currentPage: number = 1;
-  @Input() itemsPerPage: number | undefined;
+  @Input() itemsPerPage: number = 3;
   @Input() totalPages: number = 0;
   @Input() serverConnected: boolean = false;
   @Input() selectAllData: boolean = true;
   @Input() tableData: any[] = [];
   @Input() tickets: any[] = [];
   @Input() actions: any[] = [];
+  actionsSelected: any[] = [];
+  commonActions: any;
+  arrayCommonActions: any[] = [];
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.serverConnected) {
@@ -64,6 +67,8 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   goToPage(page: number) {
+    this.closeActionAll();
+    
     this.selectedValues = [];
     if (!this.serverConnected) {
       if (page >= 1 && page <= this.totalPages) {
@@ -81,6 +86,8 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   nextPage() {
+    this.closeActionAll();
+    
     this.selectedValues = [];
     if (!this.serverConnected) {
       if (this.currentPage < this.totalPages) {
@@ -96,10 +103,16 @@ export class TableComponent implements OnInit, OnChanges {
           this.itemsPerPage = res.data.pagination.total_perpage;
           this.totalPages = res.data.pagination.total_page;
         });
+
+        
     }
   }
 
+  
+
   previousPage() {
+    this.closeActionAll();
+
     this.selectedValues = [];
     if (!this.serverConnected) {
       if (this.currentPage > 1) {
@@ -121,14 +134,7 @@ export class TableComponent implements OnInit, OnChanges {
   refreshTable() {
     this.tableData = [...this.initialTableData];
 
-    this.droppedColumns.forEach((column) => {
-      this.tableData.forEach((ticket) => {
-        if (ticket.name == column) {
-          const columnDataName = ticket.sortBy;
-          this.showColumn(columnDataName);
-        }
-      });
-    });
+    
     this.droppedColumns = [];
   }
 
@@ -143,29 +149,13 @@ export class TableComponent implements OnInit, OnChanges {
     if (index !== null) {
       const column = this.tableData[+index!];
       this.droppedColumns.push(column.name);
-      this.hideColumn(column.sortBy);
+      
       this.tableData = this.tableData.filter((_, i) => i !== +index!);
     }
     this.draggedColumn = null;
   }
 
-  hideColumn(columnDataName: string) {
-    console.log(`Hiding elements with class: ${columnDataName}`);
-    const targetElements = document.getElementsByClassName(columnDataName);
-    Array.from(targetElements).forEach((element) => {
-      element.classList.add('d-none');
-    });
-  }
-
-  showColumn(columnDataName: string) {
-    console.log(`Showing elements with class: ${columnDataName}`);
-
-    const targetElements = document.getElementsByClassName(columnDataName);
-    Array.from(targetElements).forEach((element) => {
-      element.classList.remove('d-none');
-    });
-  }
-
+  
   onDropToTable(event: DragEvent, i: number) {
     event.preventDefault();
     const columnIndex = event.dataTransfer?.getData('text');
@@ -180,7 +170,7 @@ export class TableComponent implements OnInit, OnChanges {
         console.log(i);
         console.log(column);
         this.tableData.splice(i, 0, column);
-        this.showColumn(column.sortBy);
+        
       }
     }
   }
@@ -190,6 +180,8 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   selectAll(event: any) {
+    
+
     if (event.target.checked) {
       if (this.serverConnected) {
         this.selectedValues = this.tickets.map((_, index) => index);
@@ -202,6 +194,7 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   openActionAll() {
+    
     const actionAll = document.querySelector('#actions-all');
     if (this.selectedValues.length > 0) {
       let hasDoneTicket = false;
@@ -292,13 +285,69 @@ export class TableComponent implements OnInit, OnChanges {
     }
   }
 
-  selectMany(index: any, event: any) {
+  closeActionAll() {
+    this.actionsSelected = [];
+    document.getElementById('actions-all')?.classList.remove('popup');
+  }
+
+  closeAction() {
+    this.actionsSelected = [];
+    document.querySelectorAll('.actions').forEach((action) => {
+      action.classList.remove('popup');
+      action.classList.add('popdown');
+    });
+  }
+
+  getCommonActions(actions: any[]) {
+    const indexes = [...new Set(actions.map(item => item.index))];
+
+    const groupedByIndex: { [key: number]: Set<number> } = {};
+    actions.forEach(item => {
+      if (!groupedByIndex[item.index]) {
+        groupedByIndex[item.index] = new Set();
+      }
+      groupedByIndex[item.index].add(item.action);
+    });
+
+  
+    this.commonActions = indexes.reduce((common, index) => {
+      if (!groupedByIndex[index]) {
+        return new Set();
+      }
+      if (common === null) {
+        return new Set(groupedByIndex[index]);
+      }
+      return new Set([...common].filter(action => groupedByIndex[index].has(action)));
+    }, null);
+
+    this.arrayCommonActions = Array.from(this.commonActions);
+
+  }
+
+
+  selectMany(index: any, event: any, ticketActions?: any) {
+    
+    ticketActions.forEach((action: any) => {
+      this.actionsSelected.push({
+        action:action,
+        index:index
+      })  
+
+      console.log(this.actionsSelected)
+    });
+    this.getCommonActions(this.actionsSelected)
+    console.log(this.commonActions);
     if (event.target.checked) {
       this.selectedValues.push(index);
     } else {
+      
       this.selectedValues = this.selectedValues.filter((i: any) => i !== index);
     }
+    
+    
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    
+  }
 }

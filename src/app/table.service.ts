@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,10 @@ params:queries
 }
 
   
-  getTableData():Observable<any>{
-    return this.httpClient.get('http://localhost:3000/api/tabledata');
+  getData(url: string, queries ?:any): Observable<any> {
+    return this.httpClient.get<any>(url, {
+      params:queries
+    });
   }
 
 
