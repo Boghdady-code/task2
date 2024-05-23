@@ -98,7 +98,7 @@ export class AppComponent implements OnInit {
       },
       color: 'red',
       actionKey: 4,
-      actionUsage:'row'
+      status:'row'
     }
   ];
 

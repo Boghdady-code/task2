@@ -309,7 +309,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   getUnsedActions() {
     this.actions.forEach((action: any) => {
-      if (action.actionUsage == 'row') {
+      if (action.status == 'row') {
         this.unUsedActions.push(action.actionKey);
         console.log(this.unUsedActions);
         this.excludedActions = this.unUsedActions;
