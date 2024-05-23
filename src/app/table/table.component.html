@@ -53,7 +53,7 @@
                 class="{{ action.actionKey == commonAction ? action.icon : '' }}"
                 *ngFor="let action of actions"
                 (click)="
-                  action.action(this.selectedValues, this.paginatedData);
+                  action.action(this.selectedValues, this.paginatedData, this.tickets);
                   closeActionAll();
                 "
               ></i>
@@ -134,7 +134,7 @@
               [ngStyle]="{color: action.color}"
                 class="{{ action.actionKey == ticketAction? action.icon : '' }}"
                 *ngFor="let action of actions"
-                (click)="action.action(i, paginatedData); closeAction()"
+                (click)="action.action(i, tickets); closeAction()"
               ></i></ng-container>
             </div>
           </div>

@@ -7,16 +7,17 @@ import { TableService } from './table.service';
   styleUrl: './app.component.scss',
 })
 export class AppComponent implements OnInit {
+
+
   selectedAllData: boolean = true;
   serverConnected: boolean = false;
   currentPage: number = 1;
   itemsPerPage: number = 3;
   totalPages: number = 0;
   
-
-  constructor(private tableService: TableService) {}
-
   
+
+  constructor(private tableService: TableService) {} 
   ngOnInit() {
     // this.tableService.getData(this.links[0].link).subscribe((res)=>{
     //   console.log(res);
@@ -34,7 +35,8 @@ export class AppComponent implements OnInit {
     {
       name: 'Accept',
       icon: 'fa-solid fa-check',
-      action: (i: any, data?: any) => {
+      action: (i: any, data?: any, tickets ?: any) => {
+        console.log(tickets)
         if (i.length > 0) {
           for (let index = 0; index < i.length; index++) {
             data[i[index]].status = 'Accepted';
@@ -46,8 +48,7 @@ export class AppComponent implements OnInit {
         this.selectedAllData = false;
         }
       },
-      color: 'green',
-      
+      color: 'green', 
       actionKey: 1,
     },
     {
@@ -67,9 +68,10 @@ export class AppComponent implements OnInit {
       },
       color: 'red',
       actionKey: 2,
+      
+      
     },
     {
-
       name: 'Delete',
       icon: 'fa-solid fa-trash',
       action: (i: any, data?: any) => {
@@ -78,18 +80,29 @@ export class AppComponent implements OnInit {
             data[i[index]].done = true;
             console.log('deleted');
           }
-          
         } else {
-        data.splice(i, 1);
-        data[i].done = true;
+          data[i].done = true;
+        console.log('deleted');
+        
         this.selectedAllData = false;
-       
         }
       },
       color: 'red',
       actionKey: 3,
     },
+    {
+      name: 'Edit',
+      icon: 'fa-solid fa-pen',
+      action: (i: any, data?: any) => {
+      console.log('edit this row of index' + i);
+      },
+      color: 'red',
+      actionKey: 4,
+      actionUsage:'row'
+    }
   ];
+
+  
 
   tableData: any[] = [
     {
@@ -146,7 +159,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-08'),
       time: '21:00:00',
       done: false,
-      actions:[2,3]
+      actions:[2,3,4]
     },
     {
       id: 3,
@@ -157,7 +170,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-05'),
       time: '13:45:00',
       done: false,
-      actions:[1,2,3]
+      actions:[1,2,3,4]
     },
     {
       id: 4,

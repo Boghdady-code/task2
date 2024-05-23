@@ -19,10 +19,7 @@ export class TableComponent implements OnInit, OnChanges {
     private tableService: TableService
   ) {}
 
-  sorted: boolean = false;
-  selectedValues: any = [];
-  paginatedData: any[] = [];
-
+  @Input() links: any[] = [];
   @Input() currentPage: number = 1;
   @Input() itemsPerPage: number = 3;
   @Input() totalPages: number = 0;
@@ -31,9 +28,19 @@ export class TableComponent implements OnInit, OnChanges {
   @Input() tableData: any[] = [];
   @Input() tickets: any[] = [];
   @Input() actions: any[] = [];
+
+  excludedActions: any[] = [];
   actionsSelected: any[] = [];
   commonActions: any;
   arrayCommonActions: any[] = [];
+  unUsedActions: any[]=[];
+  sorted: boolean = false;
+  selectedValues: any = [];
+  paginatedData: any[] = [];
+  initialTableData: any[] = [];
+  draggedColumn: any = null;
+  droppedColumns: string[] = [];
+
 
   ngOnChanges(changes: SimpleChanges): void {
     if (!this.serverConnected) {
@@ -46,19 +53,13 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   updatePerPage() {
-    this.tableService
-      .getTickets({ page: this.currentPage, per_page: this.itemsPerPage })
-      .subscribe((res: any) => {
-        this.tickets = res.data.data;
-        this.currentPage = res.data.pagination.current_page;
-        this.itemsPerPage = res.data.pagination.total_perpage;
-        this.totalPages = res.data.pagination.total_page;
-      });
+    this.tableService.getData(this.links[0].link, {page: this.currentPage, per_page: this.itemsPerPage }).subscribe((res) => {
+      this.tickets = res.data.data;
+      this.currentPage = res.data.pagination.current_page;
+      this.itemsPerPage = res.data.pagination.total_perpage;
+      this.totalPages = res.data.pagination.total_page;
+    })
   }
-
-  initialTableData: any[] = [];
-  draggedColumn: any = null;
-  droppedColumns: string[] = [];
 
   updatePaginatedData() {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage!;
@@ -68,7 +69,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   goToPage(page: number) {
     this.closeActionAll();
-    
+    this.actionsSelected = [];
     this.selectedValues = [];
     if (!this.serverConnected) {
       if (page >= 1 && page <= this.totalPages) {
@@ -76,18 +77,18 @@ export class TableComponent implements OnInit, OnChanges {
         this.updatePaginatedData();
       }
     } else {
-      this.tableService.getTickets({ page, per_page: this.itemsPerPage }).subscribe((res: any) => {
+      this.tableService.getData(this.links[0].link, {page, per_page: this.itemsPerPage }).subscribe((res) => {
         this.tickets = res.data.data;
         this.currentPage = res.data.pagination.current_page;
         this.itemsPerPage = res.data.pagination.total_perpage;
         this.totalPages = res.data.pagination.total_page;
-      });
+      })
     }
   }
 
   nextPage() {
     this.closeActionAll();
-    
+    this.actionsSelected = [];
     this.selectedValues = [];
     if (!this.serverConnected) {
       if (this.currentPage < this.totalPages) {
@@ -95,24 +96,18 @@ export class TableComponent implements OnInit, OnChanges {
         this.updatePaginatedData();
       }
     } else {
-      this.tableService
-        .getTickets({ page: this.currentPage + 1, per_page: this.itemsPerPage })
-        .subscribe((res: any) => {
-          this.tickets = res.data.data;
-          this.currentPage = res.data.pagination.current_page;
-          this.itemsPerPage = res.data.pagination.total_perpage;
-          this.totalPages = res.data.pagination.total_page;
-        });
-
-        
+      this.tableService.getData(this.links[0].link, {page: this.currentPage + 1, per_page: this.itemsPerPage }).subscribe((res) => {
+        this.tickets = res.data.data;
+        this.currentPage = res.data.pagination.current_page;
+        this.itemsPerPage = res.data.pagination.total_perpage;
+        this.totalPages = res.data.pagination.total_page;
+      })
     }
   }
 
-  
-
   previousPage() {
     this.closeActionAll();
-
+    this.actionsSelected = [];
     this.selectedValues = [];
     if (!this.serverConnected) {
       if (this.currentPage > 1) {
@@ -120,21 +115,17 @@ export class TableComponent implements OnInit, OnChanges {
         this.updatePaginatedData();
       }
     } else {
-      this.tableService
-        .getTickets({ page: this.currentPage - 1, per_page: this.itemsPerPage })
-        .subscribe((res: any) => {
-          this.tickets = res.data.data;
-          this.currentPage = res.data.pagination.current_page;
-          this.itemsPerPage = res.data.pagination.total_perpage;
-          this.totalPages = res.data.pagination.total_page;
-        });
+      this.tableService.getData(this.links[0].link, {page: this.currentPage - 1, per_page: this.itemsPerPage }).subscribe((res) => {
+        this.tickets = res.data.data;
+        this.currentPage = res.data.pagination.current_page;
+        this.itemsPerPage = res.data.pagination.total_perpage;
+        this.totalPages = res.data.pagination.total_page;
+      }) 
     }
   }
 
   refreshTable() {
     this.tableData = [...this.initialTableData];
-
-    
     this.droppedColumns = [];
   }
 
@@ -155,7 +146,6 @@ export class TableComponent implements OnInit, OnChanges {
     this.draggedColumn = null;
   }
 
-  
   onDropToTable(event: DragEvent, i: number) {
     event.preventDefault();
     const columnIndex = event.dataTransfer?.getData('text');
@@ -170,7 +160,6 @@ export class TableComponent implements OnInit, OnChanges {
         console.log(i);
         console.log(column);
         this.tableData.splice(i, 0, column);
-        
       }
     }
   }
@@ -180,8 +169,6 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   selectAll(event: any) {
-    
-
     if (event.target.checked) {
       if (this.serverConnected) {
         this.selectedValues = this.tickets.map((_, index) => index);
@@ -194,7 +181,6 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   openActionAll() {
-    
     const actionAll = document.querySelector('#actions-all');
     if (this.selectedValues.length > 0) {
       let hasDoneTicket = false;
@@ -219,7 +205,6 @@ export class TableComponent implements OnInit, OnChanges {
           }
         }
       });
-
       if (!hasDoneTicket && actionAll) {
         if (actionAll.classList.contains('popup')) {
           this.renderer.removeClass(actionAll, 'popup');
@@ -286,12 +271,10 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   closeActionAll() {
-    this.actionsSelected = [];
     document.getElementById('actions-all')?.classList.remove('popup');
   }
 
   closeAction() {
-    this.actionsSelected = [];
     document.querySelectorAll('.actions').forEach((action) => {
       action.classList.remove('popup');
       action.classList.add('popdown');
@@ -300,7 +283,6 @@ export class TableComponent implements OnInit, OnChanges {
 
   getCommonActions(actions: any[]) {
     const indexes = [...new Set(actions.map(item => item.index))];
-
     const groupedByIndex: { [key: number]: Set<number> } = {};
     actions.forEach(item => {
       if (!groupedByIndex[item.index]) {
@@ -308,8 +290,6 @@ export class TableComponent implements OnInit, OnChanges {
       }
       groupedByIndex[item.index].add(item.action);
     });
-
-  
     this.commonActions = indexes.reduce((common, index) => {
       if (!groupedByIndex[index]) {
         return new Set();
@@ -319,35 +299,50 @@ export class TableComponent implements OnInit, OnChanges {
       }
       return new Set([...common].filter(action => groupedByIndex[index].has(action)));
     }, null);
-
+    this.excludedActions.forEach((action: any) => {
+      if (this.commonActions.has(action)) {
+        this.commonActions.delete(action);
+      }
+    })
     this.arrayCommonActions = Array.from(this.commonActions);
-
   }
 
+  getUnsedActions() {
+    this.actions.forEach((action: any) => {
+      if (action.actionUsage == 'row') {
+        this.unUsedActions.push(action.actionKey);
+        console.log(this.unUsedActions);
+        this.excludedActions = this.unUsedActions;
+      }
+    })
+  }
 
   selectMany(index: any, event: any, ticketActions?: any) {
-    
-    ticketActions.forEach((action: any) => {
-      this.actionsSelected.push({
-        action:action,
-        index:index
-      })  
-
-      console.log(this.actionsSelected)
-    });
-    this.getCommonActions(this.actionsSelected)
-    console.log(this.commonActions);
+    this.closeActionAll();
     if (event.target.checked) {
       this.selectedValues.push(index);
+      ticketActions.forEach((action: any) => {
+        this.actionsSelected.push({
+          action:action,
+          index:index
+        })  
+      });
+      this.getCommonActions(this.actionsSelected)
     } else {
-      
       this.selectedValues = this.selectedValues.filter((i: any) => i !== index);
+      const filteredArray = this.actionsSelected.filter(item => item.index !== index);
+      this.actionsSelected = filteredArray;
+      console.log(this.actionsSelected);
+      if (this.actionsSelected.length === 0) {
+        return;
+      } else {
+        this.getCommonActions(this.actionsSelected)
+      }
+      this.getCommonActions(this.actionsSelected)
     }
-    
-    
   }
 
   ngOnInit() {
-    
+    this.getUnsedActions();
   }
 }

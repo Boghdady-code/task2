@@ -9,12 +9,7 @@ import { tap } from 'rxjs/operators';
 export class TableService {
 
   constructor(private httpClient:HttpClient) { }
-getTickets(queries ?:any):Observable<any>{
 
-  return this.httpClient.get('http://localhost:3000/api/tickets', {
-params:queries
-  });
-}
 
   
   getData(url: string, queries ?:any): Observable<any> {
