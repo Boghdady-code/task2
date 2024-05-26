@@ -40,16 +40,16 @@ export class TableComponent implements OnInit, OnChanges {
   initialTableData: any[] = [];
   draggedColumn: any = null;
   droppedColumns: string[] = [];
+  
 
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
     if (!this.serverConnected) {
       this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
       this.updatePaginatedData();
     }
-
     this.initialTableData = [...this.tableData];
-    console.log(this.serverConnected);
+    console.log(this.totalPages)
   }
 
   updatePerPage() {
@@ -62,6 +62,7 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   updatePaginatedData() {
+    this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage!;
     const endIndex = startIndex + this.itemsPerPage!;
     this.paginatedData = this.tickets.slice(startIndex, endIndex);
@@ -140,7 +141,6 @@ export class TableComponent implements OnInit, OnChanges {
     if (index !== null) {
       const column = this.tableData[+index!];
       this.droppedColumns.push(column.name);
-      
       this.tableData = this.tableData.filter((_, i) => i !== +index!);
     }
     this.draggedColumn = null;
@@ -172,12 +172,33 @@ export class TableComponent implements OnInit, OnChanges {
     if (event.target.checked) {
       if (this.serverConnected) {
         this.selectedValues = this.tickets.map((_, index) => index);
+        this.handleCommonActions();
       } else {
         this.selectedValues = this.paginatedData.map((_, index) => index);
+        this.handleCommonActions();
       }
     } else {
       this.selectedValues = [];
     }
+  }
+
+  private handleCommonActions () {
+    this.selectedValues.forEach((element: any) => {
+      if (this.serverConnected) {
+        const  actions = this.tickets[element].actions;
+        actions.forEach((action: any) => {
+          this.actionsSelected.push({action: action, index: element})
+          this.getCommonActions(this.actionsSelected)
+        })
+      } else {
+        const  actions = this.paginatedData[element].actions;
+        actions.forEach((action: any) => {
+          this.actionsSelected.push({action: action, index: element})
+          this.getCommonActions(this.actionsSelected)
+        })
+      }
+      })
+      this.arrayCommonActions = Array.from(this.commonActions)
   }
 
   openActionAll() {
@@ -189,7 +210,7 @@ export class TableComponent implements OnInit, OnChanges {
           if (this.tickets[element].done) {
             this.selectAllData = false;
             alert(
-              'You already performed an action on Ticket Number ' +
+              'You already performed an action on Ticket Number' +
                 this.tickets[element].ticketNo
             );
             hasDoneTicket = true;
@@ -198,7 +219,7 @@ export class TableComponent implements OnInit, OnChanges {
           if (this.paginatedData[element].done) {
             this.selectAllData = false;
             alert(
-              'You already performed an action on Ticket Number ' +
+              'You already performed an action on Ticket Number' +
                 this.paginatedData[element].ticketNo
             );
             hasDoneTicket = true;
@@ -318,29 +339,32 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   selectMany(index: any, event: any, ticketActions?: any) {
-    this.closeActionAll();
-    if (event.target.checked) {
-      this.selectedValues.push(index);
-      ticketActions.forEach((action: any) => {
-        this.actionsSelected.push({
-          action:action,
-          index:index
-        })  
-      });
-      this.getCommonActions(this.actionsSelected)
-    } else {
-      this.selectedValues = this.selectedValues.filter((i: any) => i !== index);
-      const filteredArray = this.actionsSelected.filter(item => item.index !== index);
-      this.actionsSelected = filteredArray;
-      console.log(this.actionsSelected);
-      if (this.actionsSelected.length === 0) {
-        return;
-      } else {
-        this.getCommonActions(this.actionsSelected)
-      }
-      this.getCommonActions(this.actionsSelected)
-    }
+  this.closeActionAll();
+  if (event.target.checked) {
+    this.handleSelection(index, ticketActions);
+  } else {
+    this.handleDeselection(index);
   }
+}
+
+private handleSelection(index: any, ticketActions?: any) {
+  this.selectedValues.push(index);
+  if (ticketActions) {
+    ticketActions.forEach((action: any) => {
+      this.actionsSelected.push({ action, index });
+    });
+  }
+  this.getCommonActions(this.actionsSelected);
+}
+
+private handleDeselection(index: any) {
+  this.selectedValues = this.selectedValues.filter((i: any) => i !== index);
+  this.actionsSelected = this.actionsSelected.filter(item => item.index !== index);
+  console.log(this.actionsSelected);
+  if (this.actionsSelected.length > 0) {
+    this.getCommonActions(this.actionsSelected);
+  }
+}
 
   ngOnInit() {
     this.getUnsedActions();

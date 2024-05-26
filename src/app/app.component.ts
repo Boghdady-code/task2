@@ -19,16 +19,16 @@ export class AppComponent implements OnInit {
 
   constructor(private tableService: TableService) {} 
   ngOnInit() {
-    // this.tableService.getData(this.links[0].link).subscribe((res)=>{
-    //   console.log(res);
-    //   this.serverConnected = true;
-    //   this.tickets = res.data.data;
-      
-    //   this.currentPage = res.data.pagination.current_page;
-    //   this.itemsPerPage = res.data.pagination.total_perpage;
-    //   this.totalPages = res.data.pagination.total_page;
-
-    // })
+    // for (let i = 0; i < this.links.length; i++) {
+    //   this.tableService.getData(this.links[i].link).subscribe((res)=>{
+    //     console.log(res);
+    //     this.serverConnected = true;
+    //     this.tickets = res.data.data;
+    //     this.currentPage = res.data.pagination.current_page;
+    //     this.itemsPerPage = res.data.pagination.total_perpage;
+    //     this.totalPages = res.data.pagination.total_page;
+    //   })
+    // }
   }
 
   actions: any[] = [
@@ -68,8 +68,6 @@ export class AppComponent implements OnInit {
       },
       color: 'red',
       actionKey: 2,
-      
-      
     },
     {
       name: 'Delete',
@@ -82,13 +80,13 @@ export class AppComponent implements OnInit {
           }
         } else {
           data[i].done = true;
-        console.log('deleted');
-        
+        console.log('deleted index' + i);
         this.selectedAllData = false;
         }
       },
       color: 'red',
       actionKey: 3,
+      
     },
     {
       name: 'Edit',
@@ -148,7 +146,8 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-01'),
       time: '10:00:00',
       done: false,
-      actions:[1]
+      actions:[1,2]
+
     },
     {
       id: 2,

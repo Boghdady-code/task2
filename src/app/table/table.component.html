@@ -36,7 +36,7 @@
             <i
               class="fa-solid fa-ellipsis-vertical"
               style="cursor: pointer"
-              (click)="openActionAll()"
+              (click)="openActionAll(); closeAction()"
               *ngIf="selectedValues.length > 0 && selectAllData == true"
 
             ></i>
