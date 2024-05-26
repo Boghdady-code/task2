@@ -1,74 +1,78 @@
 .properties {
-    position: relative;
-  
-    .actions {
-      position: absolute;
-      background-color: #f5f5dc45;
-      right: -30px;
-      top: 0;
-      transform: translateY(-50%);
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-  
-      i {
-        font-size: 12px;
-      }
-    }
-  }
-  
-  .popup {
-    display: flex !important;
-  }
-  
-  .popdown {
-    display: none !important;
-  }
-  
-  .properties-all {
-    position: relative;
-    #actions-all {
-      position: absolute;
-      right: 0;
-      top: 0;
-      transform: translateY(-50%);
-      padding: 10px;
-      border-radius: 5px;
-      display: none;
-    }
-  }
-  
-  .drag-container {
-    text-align: center;
-  
-    .drag {
-      padding: 10px;
-      border: 1px solid #ccc;
-  
-      border-radius: 5px;
-      flex: 1;
-    }
-  }
-  .drag {
-    border: 1px dashed #ccc;
-    padding: 20px;
-    text-align: center;
-  }
-  
-  th[draggable="true"],
-  .dropped-column {
-    cursor: move;
-  }
-  
-  .dropped-column {
-    margin-top: 10px;
-    background-color: #f0f0f0;
-    padding: 5px;
+  position: relative;
+
+  .actions {
+    position: absolute;
+    background-color: #f5f5dc45;
+    right: -30px;
+    top: 0;
+    transform: translateY(-50%);
+    padding: 10px;
     border-radius: 5px;
+    display: none;
+    
+
+    i {
+      font-size: 12px;
+      margin-left: 3px;
+
+
+    }
   }
-  
-  .input-row {
-    margin-left: 10px;
-    width: 60px;
-    height: 50px;
+}
+
+.popup {
+  display: flex !important;
+}
+
+.popdown {
+  display: none !important;
+}
+
+.properties-all {
+  position: relative;
+  #actions-all {
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateY(-50%);
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
   }
+}
+
+.drag-container {
+  text-align: center;
+
+  .drag {
+    padding: 10px;
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+    flex: 1;
+  }
+}
+.drag {
+  border: 1px dashed #ccc;
+  padding: 20px;
+  text-align: center;
+}
+
+th[draggable="true"],
+.dropped-column {
+  cursor: move;
+}
+
+.dropped-column {
+  margin-top: 10px;
+  background-color: #f0f0f0;
+  padding: 5px;
+  border-radius: 5px;
+}
+
+.input-row {
+  margin-left: 10px;
+  width: 60px;
+  height: 50px;
+}

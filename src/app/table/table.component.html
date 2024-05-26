@@ -43,20 +43,23 @@
           </ng-container>
 
             <div
-              class="gap-2 align-items-center"
+              class="align-items-center"
               style="cursor: pointer"
               id="actions-all"
+
             >
             <ng-container *ngFor="let commonAction of arrayCommonActions">
+              <ng-container *ngFor="let action of actions">
               <i
-              [ngStyle]="{color: action.color}"
-                class="{{ action.actionKey == commonAction ? action.icon : '' }}"
-                *ngFor="let action of actions"
+              [ngStyle]="{color: action.color, marginLeft: '5px'}"
+              class="{{ (actionStatus == commonAction && action.usage != 'row') ? action.icon : '' }}"
+                *ngFor="let actionStatus of action.actionStatus"
                 (click)="
                   action.action(this.selectedValues, this.paginatedData, this.tickets);
                   closeActionAll();
                 "
               ></i>
+            </ng-container>
             </ng-container>
             </div>
           </div>
@@ -86,7 +89,7 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="selectMany(i, $event, ticket.actions)"
+                (click)="selectMany(i, $event, ticket.status)"
                 [checked]="selectedValues.includes(i)"
               />
             </td>
@@ -96,15 +99,20 @@
               (click)="openAction(i); closeActionAll()"
             ></i>
             <div
-              class="actions gap-2 align-items-center"
+              class="actions align-items-center"
               style="cursor: pointer"
             >
-            <ng-container *ngFor="let ticketAction of ticket.actions"><i
+            <ng-container *ngFor="let action of actions">
+           <i
               [ngStyle]="{color: action.color}"
-                class="{{ action.actionKey == ticketAction? action.icon : '' }}"
-                *ngFor="let action of actions"
+                class="{{ actionStatus == ticket.status? action.icon : '' }}"
+                *ngFor="let actionStatus of action.actionStatus"
                 (click)="action.action(i, paginatedData); closeAction()"
-              ></i></ng-container>
+              >
+             
+            </i>
+          </ng-container>
+          
               
             </div>
           </div>
@@ -116,7 +124,7 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="selectMany(i, $event, ticket.actions)"
+                (click)="selectMany(i, $event, ticket.status)"
                 [checked]="selectedValues.includes(i)"
               />
             </td>
@@ -127,15 +135,19 @@
 
             ></i>
             <div
-              class="actions gap-2 align-items-center"
+              class="actions align-items-center"
               style="cursor: pointer"
             >
-            <ng-container *ngFor="let ticketAction of ticket.actions"><i
-              [ngStyle]="{color: action.color}"
-                class="{{ action.actionKey == ticketAction? action.icon : '' }}"
-                *ngFor="let action of actions"
-                (click)="action.action(i, tickets); closeAction()"
-              ></i></ng-container>
+            <ng-container *ngFor="let action of actions">
+              <i
+                 [ngStyle]="{color: action.color}"
+                   class="{{ actionStatus == ticket.status? action.icon : '' }}"
+                   *ngFor="let actionStatus of action.actionStatus"
+                   (click)="action.action(i, tickets); closeAction()"
+                 >
+                
+               </i>
+             </ng-container>
             </div>
           </div>
           <td *ngFor="let data of tableData; let i = index">{{ ticket[data.sortBy] }}</td>

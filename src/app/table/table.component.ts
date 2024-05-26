@@ -72,6 +72,7 @@ export class TableComponent implements OnInit, OnChanges {
     this.closeActionAll();
     this.actionsSelected = [];
     this.selectedValues = [];
+    this.selectAllData = true;
     if (!this.serverConnected) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
@@ -91,6 +92,7 @@ export class TableComponent implements OnInit, OnChanges {
     this.closeActionAll();
     this.actionsSelected = [];
     this.selectedValues = [];
+    this.selectAllData = true;
     if (!this.serverConnected) {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -110,6 +112,7 @@ export class TableComponent implements OnInit, OnChanges {
     this.closeActionAll();
     this.actionsSelected = [];
     this.selectedValues = [];
+    this.selectAllData = true;
     if (!this.serverConnected) {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -302,14 +305,14 @@ export class TableComponent implements OnInit, OnChanges {
     });
   }
 
-  getCommonActions(actions: any[]) {
-    const indexes = [...new Set(actions.map(item => item.index))];
+  getCommonActions(status: any[]) {
+    const indexes = [...new Set(status.map(item => item.index))];
     const groupedByIndex: { [key: number]: Set<number> } = {};
-    actions.forEach(item => {
+    status.forEach(item => {
       if (!groupedByIndex[item.index]) {
         groupedByIndex[item.index] = new Set();
       }
-      groupedByIndex[item.index].add(item.action);
+      groupedByIndex[item.index].add(item.status);
     });
     this.commonActions = indexes.reduce((common, index) => {
       if (!groupedByIndex[index]) {
@@ -318,25 +321,13 @@ export class TableComponent implements OnInit, OnChanges {
       if (common === null) {
         return new Set(groupedByIndex[index]);
       }
-      return new Set([...common].filter(action => groupedByIndex[index].has(action)));
+      return new Set([...common].filter(status => groupedByIndex[index].has(status)));
     }, null);
-    this.excludedActions.forEach((action: any) => {
-      if (this.commonActions.has(action)) {
-        this.commonActions.delete(action);
-      }
-    })
+    
     this.arrayCommonActions = Array.from(this.commonActions);
   }
 
-  getUnsedActions() {
-    this.actions.forEach((action: any) => {
-      if (action.status == 'row') {
-        this.unUsedActions.push(action.actionKey);
-        console.log(this.unUsedActions);
-        this.excludedActions = this.unUsedActions;
-      }
-    })
-  }
+  
 
   selectMany(index: any, event: any, ticketActions?: any) {
   this.closeActionAll();
@@ -347,12 +338,11 @@ export class TableComponent implements OnInit, OnChanges {
   }
 }
 
-private handleSelection(index: any, ticketActions?: any) {
+private handleSelection(index: any, ticketStatus?: any) {
   this.selectedValues.push(index);
-  if (ticketActions) {
-    ticketActions.forEach((action: any) => {
-      this.actionsSelected.push({ action, index });
-    });
+  if (ticketStatus) {
+    this.actionsSelected.push({ status: ticketStatus, index });
+    console.log(this.actionsSelected);
   }
   this.getCommonActions(this.actionsSelected);
 }
@@ -367,6 +357,6 @@ private handleDeselection(index: any) {
 }
 
   ngOnInit() {
-    this.getUnsedActions();
+   
   }
 }
