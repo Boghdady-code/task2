@@ -12,7 +12,7 @@
         *ngFor="let column of droppedColumns; let i = index"
         class="dropped-column"
         draggable="true"
-        (dragstart)="onDragStart($event, i)"
+        (dragstart)="onDragStart($event, i, column)"
       >
         {{ column }}
       </div>
@@ -30,7 +30,6 @@
                 [checked]="selectedValues.length > 0"
                 (click)="selectAll($event)"
               />
-            
             </th>
             <ng-container *ngIf="arrayCommonActions.length > 0">
             <i
@@ -38,15 +37,12 @@
               style="cursor: pointer"
               (click)="openActionAll(); closeAction()"
               *ngIf="selectedValues.length > 0 && selectAllData == true"
-
             ></i>
           </ng-container>
-
             <div
               class="align-items-center"
               style="cursor: pointer"
               id="actions-all"
-
             >
             <ng-container *ngFor="let commonAction of arrayCommonActions">
               <ng-container *ngFor="let action of actions">
@@ -66,8 +62,8 @@
           <th
             scope="col"
             *ngFor="let data of tableData; let i = index"
-            draggable="true"
-            (dragstart)="onDragStart($event, i)"
+            [draggable]="data.draggable"
+            (dragstart)="onDragStart($event, i, data)"
             (dragover)="allowDrop($event)"
             (drop)="onDropToTable($event, i)"
           >
@@ -103,17 +99,14 @@
               style="cursor: pointer"
             >
             <ng-container *ngFor="let action of actions">
-           <i
+          <i
               [ngStyle]="{color: action.color}"
                 class="{{ actionStatus == ticket.status? action.icon : '' }}"
                 *ngFor="let actionStatus of action.actionStatus"
                 (click)="action.action(i, paginatedData); closeAction()"
               >
-             
             </i>
           </ng-container>
-          
-              
             </div>
           </div>
           <td *ngFor="let data of tableData; let i = index">{{ ticket[data.sortBy] }}</td>
@@ -132,7 +125,6 @@
               class="fa-solid fa-ellipsis-vertical"
               style="cursor: pointer"
               (click)="openAction(i); closeActionAll()"
-
             ></i>
             <div
               class="actions align-items-center"
@@ -140,34 +132,29 @@
             >
             <ng-container *ngFor="let action of actions">
               <i
-                 [ngStyle]="{color: action.color}"
-                   class="{{ actionStatus == ticket.status? action.icon : '' }}"
+                [ngStyle]="{color: action.color}"
+                  class="{{ actionStatus == ticket.status? action.icon : '' }}"
                    *ngFor="let actionStatus of action.actionStatus"
-                   (click)="action.action(i, tickets); closeAction()"
-                 >
-                
-               </i>
-             </ng-container>
+                  (click)="action.action(i, tickets); closeAction()"
+                >
+              </i>
+            </ng-container>
             </div>
           </div>
           <td *ngFor="let data of tableData; let i = index">{{ ticket[data.sortBy] }}</td>
         </tr></ng-container>
-        
       </tbody>
     </table>
   </div>
   <div class="pagination d-flex justify-content-between align-items-center" >
     <div class="pagination-controls d-flex gap-2">
       <button (click)="previousPage()" [disabled]="currentPage === 1" class="btn btn-success">Previous</button>
-    
       <button *ngFor="let page of [].constructor(totalPages); let i = index"
               (click)="goToPage(i + 1)"
               [class.active]="currentPage === i + 1" class="btn btn-success">
         {{ i + 1 }}
       </button>
-    
       <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="btn btn-success" >Next</button>
-      
     </div>
     <div class="input-perpage">
       <input

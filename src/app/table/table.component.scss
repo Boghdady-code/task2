@@ -64,6 +64,11 @@ th[draggable="true"],
   cursor: move;
 }
 
+th[draggable="false"],
+.dropped-column {
+  cursor: no-drop;
+}
+
 .dropped-column {
   margin-top: 10px;
   background-color: #f0f0f0;

@@ -21,7 +21,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   @Input() links: any[] = [];
   @Input() currentPage: number = 1;
-  @Input() itemsPerPage: number = 3;
+  @Input() itemsPerPage: number | undefined;
   @Input() totalPages: number = 0;
   @Input() serverConnected: boolean = false;
   @Input() selectAllData: boolean = true;
@@ -33,23 +33,18 @@ export class TableComponent implements OnInit, OnChanges {
   actionsSelected: any[] = [];
   commonActions: any;
   arrayCommonActions: any[] = [];
-  unUsedActions: any[]=[];
-  sorted: boolean = false;
   selectedValues: any = [];
   paginatedData: any[] = [];
   initialTableData: any[] = [];
   draggedColumn: any = null;
   droppedColumns: string[] = [];
   
-
-
   ngOnChanges(changes: SimpleChanges) {
     if (!this.serverConnected) {
       this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
       this.updatePaginatedData();
     }
     this.initialTableData = [...this.tableData];
-    console.log(this.totalPages)
   }
 
   updatePerPage() {
@@ -62,17 +57,22 @@ export class TableComponent implements OnInit, OnChanges {
   }
 
   updatePaginatedData() {
+    this.resetingData();
     this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage!;
     const endIndex = startIndex + this.itemsPerPage!;
     this.paginatedData = this.tickets.slice(startIndex, endIndex);
   }
 
+  resetingData() {
+    this.selectAllData = true;
+    this.selectedValues = [];
+    this.actionsSelected = [];
+  }
+
   goToPage(page: number) {
     this.closeActionAll();
-    this.actionsSelected = [];
-    this.selectedValues = [];
-    this.selectAllData = true;
+    this.resetingData();
     if (!this.serverConnected) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
@@ -90,9 +90,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   nextPage() {
     this.closeActionAll();
-    this.actionsSelected = [];
-    this.selectedValues = [];
-    this.selectAllData = true;
+    this.resetingData();
     if (!this.serverConnected) {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
@@ -110,9 +108,7 @@ export class TableComponent implements OnInit, OnChanges {
 
   previousPage() {
     this.closeActionAll();
-    this.actionsSelected = [];
-    this.selectedValues = [];
-    this.selectAllData = true;
+    this.resetingData();
     if (!this.serverConnected) {
       if (this.currentPage > 1) {
         this.currentPage--;
@@ -133,9 +129,11 @@ export class TableComponent implements OnInit, OnChanges {
     this.droppedColumns = [];
   }
 
-  onDragStart(event: DragEvent, index: number) {
-    this.draggedColumn = this.tableData[index];
-    event.dataTransfer?.setData('text', index.toString());
+  onDragStart(event: DragEvent, index: number, data : any) {
+    if (data.draggable) {
+      this.draggedColumn = this.tableData[index];
+      event.dataTransfer?.setData('text', index.toString());
+    }
   }
 
   onDrop(event: DragEvent) {
@@ -152,16 +150,13 @@ export class TableComponent implements OnInit, OnChanges {
   onDropToTable(event: DragEvent, i: number) {
     event.preventDefault();
     const columnIndex = event.dataTransfer?.getData('text');
-    console.log(columnIndex);
     if (columnIndex !== null) {
       const columnName = this.droppedColumns.splice(+columnIndex!, 1)[0];
-      console.log(columnName);
+      
       const column = this.initialTableData.find(
         (col) => col.name === columnName
       );
       if (column) {
-        console.log(i);
-        console.log(column);
         this.tableData.splice(i, 0, column);
       }
     }
@@ -175,30 +170,26 @@ export class TableComponent implements OnInit, OnChanges {
     if (event.target.checked) {
       if (this.serverConnected) {
         this.selectedValues = this.tickets.map((_, index) => index);
-        this.handleCommonActions();
+        this.handleActions();
       } else {
         this.selectedValues = this.paginatedData.map((_, index) => index);
-        this.handleCommonActions();
+        this.handleActions();
       }
     } else {
       this.selectedValues = [];
     }
   }
 
-  private handleCommonActions () {
+  private handleActions () {
     this.selectedValues.forEach((element: any) => {
       if (this.serverConnected) {
-        const  actions = this.tickets[element].actions;
-        actions.forEach((action: any) => {
-          this.actionsSelected.push({action: action, index: element})
-          this.getCommonActions(this.actionsSelected)
-        })
+          const status = this.tickets[element].status;
+          this.actionsSelected.push({status: status, index: element})
+          this.getActions(this.actionsSelected)
       } else {
-        const  actions = this.paginatedData[element].actions;
-        actions.forEach((action: any) => {
-          this.actionsSelected.push({action: action, index: element})
-          this.getCommonActions(this.actionsSelected)
-        })
+          const status = this.paginatedData[element].status;
+          this.actionsSelected.push({status: status, index: element})
+          this.getActions(this.actionsSelected)
       }
       })
       this.arrayCommonActions = Array.from(this.commonActions)
@@ -213,7 +204,7 @@ export class TableComponent implements OnInit, OnChanges {
           if (this.tickets[element].done) {
             this.selectAllData = false;
             alert(
-              'You already performed an action on Ticket Number' +
+              'You already performed an action on Ticket Number'+
                 this.tickets[element].ticketNo
             );
             hasDoneTicket = true;
@@ -222,7 +213,7 @@ export class TableComponent implements OnInit, OnChanges {
           if (this.paginatedData[element].done) {
             this.selectAllData = false;
             alert(
-              'You already performed an action on Ticket Number' +
+              'You already performed an action on Ticket Number'+
                 this.paginatedData[element].ticketNo
             );
             hasDoneTicket = true;
@@ -305,7 +296,7 @@ export class TableComponent implements OnInit, OnChanges {
     });
   }
 
-  getCommonActions(status: any[]) {
+  getActions(status: any[]) {
     const indexes = [...new Set(status.map(item => item.index))];
     const groupedByIndex: { [key: number]: Set<number> } = {};
     status.forEach(item => {
@@ -323,11 +314,8 @@ export class TableComponent implements OnInit, OnChanges {
       }
       return new Set([...common].filter(status => groupedByIndex[index].has(status)));
     }, null);
-    
     this.arrayCommonActions = Array.from(this.commonActions);
   }
-
-  
 
   selectMany(index: any, event: any, ticketActions?: any) {
   this.closeActionAll();
@@ -335,6 +323,7 @@ export class TableComponent implements OnInit, OnChanges {
     this.handleSelection(index, ticketActions);
   } else {
     this.handleDeselection(index);
+    this.selectAllData = true;
   }
 }
 
@@ -344,7 +333,7 @@ private handleSelection(index: any, ticketStatus?: any) {
     this.actionsSelected.push({ status: ticketStatus, index });
     console.log(this.actionsSelected);
   }
-  this.getCommonActions(this.actionsSelected);
+  this.getActions(this.actionsSelected);
 }
 
 private handleDeselection(index: any) {
@@ -352,11 +341,20 @@ private handleDeselection(index: any) {
   this.actionsSelected = this.actionsSelected.filter(item => item.index !== index);
   console.log(this.actionsSelected);
   if (this.actionsSelected.length > 0) {
-    this.getCommonActions(this.actionsSelected);
+    this.getActions(this.actionsSelected);
   }
 }
 
   ngOnInit() {
-   
+  //  for (let i = 0; i < this.links.length; i++) {
+  //     this.tableService.getData(this.links[i].link).subscribe((res)=>{
+  //       console.log(res);
+  //       this.serverConnected = true;
+  //       this.tickets = res.data.data;
+  //       this.currentPage = res.data.pagination.current_page;
+  //       this.itemsPerPage = res.data.pagination.total_perpage;
+  //       this.totalPages = res.data.pagination.total_page;
+  //     })
+  //   }
   }
 }

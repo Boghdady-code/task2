@@ -1,36 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { TableService } from './table.service';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
+
+
 export class AppComponent implements OnInit {
   
 
   selectedAllData: boolean = true;
-  serverConnected: boolean = false;
   currentPage: number = 1;
   itemsPerPage: number = 7;
   totalPages: number = 0;
   
-  
-
   constructor(private tableService: TableService) {} 
-  ngOnInit() {
-    // for (let i = 0; i < this.links.length; i++) {
-    //   this.tableService.getData(this.links[i].link).subscribe((res)=>{
-    //     console.log(res);
-    //     this.serverConnected = true;
-    //     this.tickets = res.data.data;
-    //     this.currentPage = res.data.pagination.current_page;
-    //     this.itemsPerPage = res.data.pagination.total_perpage;
-    //     this.totalPages = res.data.pagination.total_page;
-    //   })
-    // }
-  }
 
+  ngOnInit() {
+  }
   actions: any[] = [
     {
       name: 'Check Stocks',
@@ -39,23 +29,22 @@ export class AppComponent implements OnInit {
         
         if (i.length > 0) {
           for (let index = 0; index < i.length; index++) {
-            data[i[index]].status = 'Checked Stocks';
+            data[i[index]].status = 'Checking Stocks';
             data[i[index]].done = true;
           }
         } else {
-        data[i].status = 'Checked Stocks';
+        data[i].status = 'Checking Stocks';
         data[i].done = true;
         this.selectedAllData = false;
         }
       },
       color: 'green',
       actionStatus:['Pending'],
-      
     },
     {
       name: 'Delivered',
       icon: "fa-solid fa-circle-check",
-      action: (i: any, data?: any) => {
+      action: (i: any, data?: any, tickets ?: any) => {
         if (i.length > 0) {
           for (let index = 0; index < i.length; index++) {
             data[i[index]].status = 'Delivered';
@@ -69,14 +58,12 @@ export class AppComponent implements OnInit {
       },
       color: 'red',
       actionStatus: ['Delivering', 'Pending'],
-      
-    
     },
     {
       name: 'Closed',
       icon: "fa-solid fa-xmark",
       color: 'red',
-      action: (i: any, data?: any) => {
+      action: (i: any, data?: any, tickets ?: any) => {
         if (i.length > 0) {
           for (let index = 0; index < i.length; index++) {
             data[i[index]].status = 'Closed';
@@ -94,62 +81,64 @@ export class AppComponent implements OnInit {
       name: 'Edit',
       icon: 'fa-solid fa-pen',
       color: 'red',
-      action: (i: any, data?: any) => {
+      action: (i: any, data?: any, tickets ?: any) => {
         data[i].status = 'Edited';
         data[i].done = true;
         this.selectedAllData = false;
       },
-      actionStatus:['Pending', 'Delivered', 'Check Stocks', 'Delievering'],
+      actionStatus:['Pending', 'Delivered', 'Checking Stocks', 'Delievering'],
       usage:'row'
     },
     {
       name:'Shipping',
       icon: 'fa-solid fa-truck',
       color: 'red',
-      action: (i: any, data?: any) => {
-        data[i].status = 'Shipped';
+      action: (i: any, data?: any, tickets ?: any) => {
+        data[i].status = 'Delivered';
         data[i].done = true;
         this.selectedAllData = false;
       },
-      actionStatus:['Check Stocks'],
+      actionStatus:['Checking Stocks'],
     }
-
   ];
-
-  
 
   tableData: any[] = [
     {
       name: 'Ticket No',
       sortable: true,
       sortBy: 'ticketNo',
+      draggable: true,
     },
     {
       name: 'Title',
       sortable: false,
       sortBy: 'title',
+      draggable: true,
     },
     {
       name: 'Description',
       sortable: false,
       sortBy: 'description',
+      draggable: false,
     },
     {
       name: 'Status',
       sortable: true,
       sortBy: 'status',
+      draggable: false,
     },
     {
       name: 'Date',
       sortable: true,
       sortBy: 'date',
+      draggable: true,
     },
     {
       name: 'Time',
       sortable: true,
       sortBy: 'time',
+      draggable: false,
     }
-    
   ];
 
   tickets: any[] = [
@@ -188,7 +177,7 @@ export class AppComponent implements OnInit {
       ticketNo: 5,
       title: 'title4',
       description: 'description4',
-      status: 'Check Stocks',
+      status: 'Checking Stocks',
       date: new Date('2022-01-03'),
       time: '09:30:00',
       done: false,
@@ -222,7 +211,6 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
-     
     },
     {
       id: 8,
@@ -233,7 +221,6 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
-    
     },
     {
       id: 9,
@@ -244,18 +231,16 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
-     
     },
     {
       id: 10,
       ticketNo: 10,
       title: 'title10',
       description: 'description10',
-      status: 'Check Stocks',
+      status: 'Checking Stocks',
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
-      
     },
   ];
 
