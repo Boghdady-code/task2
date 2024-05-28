@@ -345,6 +345,7 @@ export class TableComponent implements OnInit, OnChanges {
     }, null);
     console.log(this.commonActions);
     this.arrayCommonActions = Array.from(this.commonActions);
+    console.log(this.arrayCommonActions);
   }
 
   selectMany(index: any, event: any, ticketActions?: any) {
