@@ -210,13 +210,13 @@ export class TableComponent implements OnInit, OnChanges {
       if (this.serverConnected) {
           const actionOn = this.data[element][this.actionOn];
           const actionOnKey = this.actionOn;
-          this.actionsSelected.push({[`${actionOnKey}`]: actionOn, index: element})
+          this.actionsSelected.push({[actionOnKey]: actionOn, index: element})
           this.getActions(this.actionsSelected)
       } else {
           const actionOn = this.paginatedData[element][this.actionOn];
           console.log(actionOn);
           const actionOnKey = this.actionOn;
-          this.actionsSelected.push({[`${actionOnKey}`]: actionOn, index: element})
+          this.actionsSelected.push({[actionOnKey]: actionOn, index: element})
           this.getActions(this.actionsSelected)
       }
       })
@@ -365,7 +365,7 @@ private handleSelection(index: any, ticketStatusKey?: any) {
   if (ticketStatusKey) {
     const actionOnKey = this.actionOn;
     console.log(actionOnKey);
-    this.actionsSelected.push({ [`${actionOnKey}`]: ticketStatusKey, index });
+    this.actionsSelected.push({ [actionOnKey]: ticketStatusKey, index });
     console.log(this.actionsSelected);
   }
   this.getActions(this.actionsSelected);
