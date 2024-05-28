@@ -51,7 +51,7 @@
               class="{{ (actionStatus == commonAction && action.usage != 'row') ? action.icon : '' }}"
                 *ngFor="let actionStatus of action.actionStatus"
                 (click)="
-                  action.action(this.selectedValues, this.paginatedData, this.tickets);
+                  action.action(this.selectedValues, this.paginatedData, this.data);
                   closeActionAll();
                 "
               ></i>
@@ -85,7 +85,7 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="selectMany(i, $event, ticket.status)"
+                (click)="selectMany(i, $event, ticket[actionOn])"
                 [checked]="selectedValues.includes(i)"
               />
             </td>
@@ -101,9 +101,9 @@
             <ng-container *ngFor="let action of actions">
           <i
               [ngStyle]="{color: action.color}"
-                class="{{ actionStatus == ticket.status? action.icon : '' }}"
+                class="{{ actionStatus == ticket[this.actionOn]? action.icon : '' }}"
                 *ngFor="let actionStatus of action.actionStatus"
-                (click)="action.action(i, paginatedData); closeAction()"
+                (click)="action.action(i, paginatedData);onLog(ticket); closeAction()"
               >
             </i>
           </ng-container>
@@ -111,13 +111,13 @@
           </div>
           <td *ngFor="let data of tableData; let i = index">{{ ticket[data.sortBy] }}</td>
         </tr></ng-container>
-        <ng-container *ngIf="serverConnected == true"><tr *ngFor="let ticket of tickets; let i = index">
+        <ng-container *ngIf="serverConnected == true"><tr *ngFor="let ticket of data; let i = index">
           <div class="properties d-flex gap-4 align-items-center">
             <td>
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="selectMany(i, $event, ticket.status)"
+                (click)="selectMany(i, $event, ticket[actionOn])"
                 [checked]="selectedValues.includes(i)"
               />
             </td>
@@ -133,15 +133,15 @@
             <ng-container *ngFor="let action of actions">
               <i
                 [ngStyle]="{color: action.color}"
-                  class="{{ actionStatus == ticket.status? action.icon : '' }}"
+                  class="{{ actionStatus == ticket[actionOn]? action.icon : '' }}"
                    *ngFor="let actionStatus of action.actionStatus"
-                  (click)="action.action(i, tickets); closeAction()"
+                  (click)="action.action(i, data);onLog(ticket); closeAction()"
                 >
               </i>
             </ng-container>
             </div>
           </div>
-          <td *ngFor="let data of tableData; let i = index">{{ ticket[data.sortBy] }}</td>
+          <td *ngFor="let data of tableData; let i = index" >{{ ticket[data.sortBy] }}</td>
         </tr></ng-container>
       </tbody>
     </table>

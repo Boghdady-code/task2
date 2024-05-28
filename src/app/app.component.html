@@ -1,10 +1,12 @@
 <app-table
   [tableData]="tableData"
-  [tickets]="tickets"
+  [data]="data"
   [actions]="actions"
   [selectAllData]="selectedAllData"
   [currentPage]="currentPage"
   [itemsPerPage]="itemsPerPage"
   [totalPages]="totalPages"
   [links]="links"
+  (logTicket)="onLogTicket($event)"
+  [actionOn]="actionOn"
 ></app-table>

@@ -1,12 +1,15 @@
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   Renderer2,
   SimpleChanges,
 } from '@angular/core';
 import { TableService } from '../table.service';
+import { Data } from '../data';
 
 @Component({
   selector: 'app-table',
@@ -26,8 +29,10 @@ export class TableComponent implements OnInit, OnChanges {
   @Input() serverConnected: boolean = false;
   @Input() selectAllData: boolean = true;
   @Input() tableData: any[] = [];
-  @Input() tickets: any[] = [];
+  @Input() data: any[] = [];
   @Input() actions: any[] = [];
+  @Output() logTicket = new EventEmitter<Data>();
+  @Input() actionOn: string = '';
 
   excludedActions: any[] = [];
   actionsSelected: any[] = [];
@@ -38,30 +43,39 @@ export class TableComponent implements OnInit, OnChanges {
   initialTableData: any[] = [];
   draggedColumn: any = null;
   droppedColumns: string[] = [];
-  
+
   ngOnChanges(changes: SimpleChanges) {
     if (!this.serverConnected) {
-      this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
+      this.totalPages = Math.ceil(this.data.length / this.itemsPerPage!);
       this.updatePaginatedData();
     }
     this.initialTableData = [...this.tableData];
   }
 
+  onLog(ticket: Data) {
+    console.log('here');
+    this.logTicket.emit(ticket);
+  }
+
   updatePerPage() {
-    this.tableService.getData(this.links[0].link, {page: this.currentPage, per_page: this.itemsPerPage }).subscribe((res) => {
-      this.tickets = res.data.data;
+    for (let i = 0; i < this.links.length; i++) {
+      this.tableService.getData(this.links[i].link, {page: this.currentPage, per_page: this.itemsPerPage }).subscribe((res)=>{
+      console.log(res);
+      this.serverConnected = true;
+      this.data = res.data.data;
       this.currentPage = res.data.pagination.current_page;
       this.itemsPerPage = res.data.pagination.total_perpage;
       this.totalPages = res.data.pagination.total_page;
     })
   }
+  }
 
   updatePaginatedData() {
     this.resetingData();
-    this.totalPages = Math.ceil(this.tickets.length / this.itemsPerPage!);
+    this.totalPages = Math.ceil(this.data.length / this.itemsPerPage!);
     const startIndex = (this.currentPage - 1) * this.itemsPerPage!;
     const endIndex = startIndex + this.itemsPerPage!;
-    this.paginatedData = this.tickets.slice(startIndex, endIndex);
+    this.paginatedData = this.data.slice(startIndex, endIndex);
   }
 
   resetingData() {
@@ -79,12 +93,16 @@ export class TableComponent implements OnInit, OnChanges {
         this.updatePaginatedData();
       }
     } else {
-      this.tableService.getData(this.links[0].link, {page, per_page: this.itemsPerPage }).subscribe((res) => {
-        this.tickets = res.data.data;
+      for (let i = 0; i < this.links.length; i++) {
+        this.tableService.getData(this.links[i].link, {page, per_page: this.itemsPerPage }).subscribe((res)=>{
+        console.log(res);
+        this.serverConnected = true;
+        this.data = res.data.data;
         this.currentPage = res.data.pagination.current_page;
         this.itemsPerPage = res.data.pagination.total_perpage;
         this.totalPages = res.data.pagination.total_page;
       })
+    } 
     }
   }
 
@@ -97,12 +115,16 @@ export class TableComponent implements OnInit, OnChanges {
         this.updatePaginatedData();
       }
     } else {
-      this.tableService.getData(this.links[0].link, {page: this.currentPage + 1, per_page: this.itemsPerPage }).subscribe((res) => {
-        this.tickets = res.data.data;
+      for (let i = 0; i < this.links.length; i++) {
+        this.tableService.getData(this.links[i].link, {page: this.currentPage + 1, per_page: this.itemsPerPage }).subscribe((res)=>{
+        console.log(res);
+        this.serverConnected = true;
+        this.data = res.data.data;
         this.currentPage = res.data.pagination.current_page;
         this.itemsPerPage = res.data.pagination.total_perpage;
         this.totalPages = res.data.pagination.total_page;
       })
+    }
     }
   }
 
@@ -115,12 +137,16 @@ export class TableComponent implements OnInit, OnChanges {
         this.updatePaginatedData();
       }
     } else {
-      this.tableService.getData(this.links[0].link, {page: this.currentPage - 1, per_page: this.itemsPerPage }).subscribe((res) => {
-        this.tickets = res.data.data;
+      for (let i = 0; i < this.links.length; i++) {
+        this.tableService.getData(this.links[i].link, {page: this.currentPage - 1, per_page: this.itemsPerPage }).subscribe((res)=>{
+        console.log(res);
+        this.serverConnected = true;
+        this.data = res.data.data;
         this.currentPage = res.data.pagination.current_page;
         this.itemsPerPage = res.data.pagination.total_perpage;
         this.totalPages = res.data.pagination.total_page;
-      }) 
+      })
+    }
     }
   }
 
@@ -152,7 +178,6 @@ export class TableComponent implements OnInit, OnChanges {
     const columnIndex = event.dataTransfer?.getData('text');
     if (columnIndex !== null) {
       const columnName = this.droppedColumns.splice(+columnIndex!, 1)[0];
-      
       const column = this.initialTableData.find(
         (col) => col.name === columnName
       );
@@ -169,26 +194,29 @@ export class TableComponent implements OnInit, OnChanges {
   selectAll(event: any) {
     if (event.target.checked) {
       if (this.serverConnected) {
-        this.selectedValues = this.tickets.map((_, index) => index);
+        this.selectedValues = this.data.map((_, index) => index);
         this.handleActions();
       } else {
         this.selectedValues = this.paginatedData.map((_, index) => index);
         this.handleActions();
       }
     } else {
-      this.selectedValues = [];
+      this.resetingData();
     }
   }
 
   private handleActions () {
     this.selectedValues.forEach((element: any) => {
       if (this.serverConnected) {
-          const status = this.tickets[element].status;
-          this.actionsSelected.push({status: status, index: element})
+          const actionOn = this.data[element][this.actionOn];
+          const actionOnKey = this.actionOn;
+          this.actionsSelected.push({[`${actionOnKey}`]: actionOn, index: element})
           this.getActions(this.actionsSelected)
       } else {
-          const status = this.paginatedData[element].status;
-          this.actionsSelected.push({status: status, index: element})
+          const actionOn = this.paginatedData[element][this.actionOn];
+          console.log(actionOn);
+          const actionOnKey = this.actionOn;
+          this.actionsSelected.push({[`${actionOnKey}`]: actionOn, index: element})
           this.getActions(this.actionsSelected)
       }
       })
@@ -201,11 +229,11 @@ export class TableComponent implements OnInit, OnChanges {
       let hasDoneTicket = false;
       this.selectedValues.forEach((element: any) => {
         if (this.serverConnected) {
-          if (this.tickets[element].done) {
+          if (this.data[element].done) {
             this.selectAllData = false;
             alert(
               'You already performed an action on Ticket Number'+
-                this.tickets[element].ticketNo
+                this.data[element].ticketNo
             );
             hasDoneTicket = true;
           }
@@ -245,7 +273,7 @@ export class TableComponent implements OnInit, OnChanges {
         icon.className = 'fa-solid fa-sort-down';
         icon.style.color = 'green';
         if (this.serverConnected) {
-          this.tickets.sort((a, b) => (a[property] < b[property] ? -1 : 1));
+          this.data.sort((a, b) => (a[property] < b[property] ? -1 : 1));
         } else {
           this.paginatedData.sort((a, b) =>
             a[property] < b[property] ? -1 : 1
@@ -255,7 +283,7 @@ export class TableComponent implements OnInit, OnChanges {
         icon.className = 'fa-solid fa-sort';
         icon.style.color = 'black';
         if (this.serverConnected) {
-          this.tickets.sort((a, b) => (a[property] > b[property] ? -1 : 1));
+          this.data.sort((a, b) => (a[property] > b[property] ? -1 : 1));
         } else {
           this.paginatedData.sort((a, b) =>
             a[property] > b[property] ? -1 : 1
@@ -296,28 +324,31 @@ export class TableComponent implements OnInit, OnChanges {
     });
   }
 
-  getActions(status: any[]) {
-    const indexes = [...new Set(status.map(item => item.index))];
+  getActions(actionOn: any[]) {
+    console.log(actionOn);
+    const indexes = [...new Set(actionOn.map(item => item.index))];
     const groupedByIndex: { [key: number]: Set<number> } = {};
-    status.forEach(item => {
+    actionOn.forEach(item => {
       if (!groupedByIndex[item.index]) {
         groupedByIndex[item.index] = new Set();
       }
-      groupedByIndex[item.index].add(item.status);
+      groupedByIndex[item.index].add(item[this.actionOn]);
     });
-    this.commonActions = indexes.reduce((common, index) => {
+    this.commonActions = indexes.reduce((common: any, index) => {
       if (!groupedByIndex[index]) {
         return new Set();
       }
       if (common === null) {
         return new Set(groupedByIndex[index]);
       }
-      return new Set([...common].filter(status => groupedByIndex[index].has(status)));
+      return new Set([...common].filter(actionOn => groupedByIndex[index].has(actionOn)));
     }, null);
+    console.log(this.commonActions);
     this.arrayCommonActions = Array.from(this.commonActions);
   }
 
   selectMany(index: any, event: any, ticketActions?: any) {
+    console.log(index, event.target.checked, ticketActions);
   this.closeActionAll();
   if (event.target.checked) {
     this.handleSelection(index, ticketActions);
@@ -327,10 +358,13 @@ export class TableComponent implements OnInit, OnChanges {
   }
 }
 
-private handleSelection(index: any, ticketStatus?: any) {
+private handleSelection(index: any, ticketStatusKey?: any) {
+  console.log(ticketStatusKey);
   this.selectedValues.push(index);
-  if (ticketStatus) {
-    this.actionsSelected.push({ status: ticketStatus, index });
+  if (ticketStatusKey) {
+    const actionOnKey = this.actionOn;
+    console.log(actionOnKey);
+    this.actionsSelected.push({ [`${actionOnKey}`]: ticketStatusKey, index });
     console.log(this.actionsSelected);
   }
   this.getActions(this.actionsSelected);
@@ -350,7 +384,7 @@ private handleDeselection(index: any) {
   //     this.tableService.getData(this.links[i].link).subscribe((res)=>{
   //       console.log(res);
   //       this.serverConnected = true;
-  //       this.tickets = res.data.data;
+  //       this.data = res.data.data;
   //       this.currentPage = res.data.pagination.current_page;
   //       this.itemsPerPage = res.data.pagination.total_perpage;
   //       this.totalPages = res.data.pagination.total_page;

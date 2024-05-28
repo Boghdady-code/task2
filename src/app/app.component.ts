@@ -1,5 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { TableService } from './table.service';
+import { Data } from './data';
+import { DataTable } from './data-table';
+import { Action } from './action';
+import { Link } from './link';
 
 
 @Component({
@@ -18,10 +22,11 @@ export class AppComponent implements OnInit {
   totalPages: number = 0;
   
   constructor(private tableService: TableService) {} 
+  
 
   ngOnInit() {
   }
-  actions: any[] = [
+  actions: Action[] = [
     {
       name: 'Check Stocks',
       icon: "fa-solid fa-spinner",
@@ -39,7 +44,7 @@ export class AppComponent implements OnInit {
         }
       },
       color: 'green',
-      actionStatus:['Pending'],
+      actionStatus:[1],
     },
     {
       name: 'Delivered',
@@ -57,7 +62,7 @@ export class AppComponent implements OnInit {
         }
       },
       color: 'red',
-      actionStatus: ['Delivering', 'Pending'],
+      actionStatus: [3],
     },
     {
       name: 'Closed',
@@ -75,7 +80,7 @@ export class AppComponent implements OnInit {
         this.selectedAllData = false;
         }
       },
-      actionStatus:['Delivered'],
+      actionStatus:[2],
     },
     {
       name: 'Edit',
@@ -86,7 +91,7 @@ export class AppComponent implements OnInit {
         data[i].done = true;
         this.selectedAllData = false;
       },
-      actionStatus:['Pending', 'Delivered', 'Checking Stocks', 'Delievering'],
+      actionStatus:[1, 2, 3, 4],
       usage:'row'
     },
     {
@@ -98,11 +103,13 @@ export class AppComponent implements OnInit {
         data[i].done = true;
         this.selectedAllData = false;
       },
-      actionStatus:['Checking Stocks'],
+      actionStatus:[3, 4],
     }
   ];
+  
+  actionOn: string = 'statuskey';
 
-  tableData: any[] = [
+  tableData: DataTable[] = [
     {
       name: 'Ticket No',
       sortable: true,
@@ -141,7 +148,9 @@ export class AppComponent implements OnInit {
     }
   ];
 
-  tickets: any[] = [
+
+
+  data: Data[] = [
     {
       id: 1,
       ticketNo: 1,
@@ -151,6 +160,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-01'),
       time: '10:00:00',
       done: false,
+      statuskey:1
     },
     {
       id: 2,
@@ -161,6 +171,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-08'),
       time: '21:00:00',
       done: false,
+      statuskey:1
     },
     {
       id: 3,
@@ -171,6 +182,8 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-05'),
       time: '13:45:00',
       done: false,
+      statuskey:2
+
     },
     {
       id: 4,
@@ -181,6 +194,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-03'),
       time: '09:30:00',
       done: false,
+      statuskey:3
     },
     {
       id: 5,
@@ -191,6 +205,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      statuskey:2
     },
     {
       id: 6,
@@ -201,6 +216,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      statuskey:4
     },
     {
       id: 7,
@@ -211,6 +227,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      statuskey:1
     },
     {
       id: 8,
@@ -221,6 +238,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      statuskey:2
     },
     {
       id: 9,
@@ -231,6 +249,7 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      statuskey:1
     },
     {
       id: 10,
@@ -241,10 +260,15 @@ export class AppComponent implements OnInit {
       date: new Date('2022-01-02'),
       time: '15:00:00',
       done: false,
+      statuskey:3
     },
   ];
 
-  links: any[] = [{
+  onLogTicket(ticket: Data) {
+    console.log(ticket);
+  }
+
+  links: Link[] = [{
     link: 'http://localhost:3000/api/tickets',
   }];
 }
