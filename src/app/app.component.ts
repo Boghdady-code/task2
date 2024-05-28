@@ -80,7 +80,7 @@ export class AppComponent implements OnInit {
         this.selectedAllData = false;
         }
       },
-      actionStatus:[2],
+      actionStatus:[2,3],
     },
     {
       name: 'Edit',

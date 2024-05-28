@@ -85,7 +85,7 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="selectMany(i, $event, ticket[actionOn])"
+                (click)="selectMany(i, $event, ticket[this.actionOn])"
                 [checked]="selectedValues.includes(i)"
               />
             </td>
@@ -117,7 +117,7 @@
               <input
                 type="checkbox"
                 class="form-check-input"
-                (click)="selectMany(i, $event, ticket[actionOn])"
+                (click)="selectMany(i, $event, ticket[this.actionOn])"
                 [checked]="selectedValues.includes(i)"
               />
             </td>
@@ -133,7 +133,7 @@
             <ng-container *ngFor="let action of actions">
               <i
                 [ngStyle]="{color: action.color}"
-                  class="{{ actionStatus == ticket[actionOn]? action.icon : '' }}"
+                  class="{{ actionStatus == ticket[this.actionOn]? action.icon : '' }}"
                    *ngFor="let actionStatus of action.actionStatus"
                   (click)="action.action(i, data);onLog(ticket); closeAction()"
                 >
